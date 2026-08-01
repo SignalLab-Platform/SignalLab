@@ -130,6 +130,34 @@ TanStack Query is initialized here through a single `QueryClientProvider`.
 
 Contains shared technical utilities that do not belong to a business domain.
 
+## Architecture conventions
+
+The Frontend remains a client of the ASP.NET Core API.
+
+Next.js owns routing, layouts, rendering, and application composition. TanStack Query owns interactive Server State on the client.
+
+The Frontend must not become a second business authority or access PostgreSQL directly.
+
+The operational rules are documented in:
+
+* [Solution Architecture](../../docs/architecture/000%20-%20SolutionArchitecture.md)
+* [Frontend Conventions](../../docs/architecture/002%20-%20FrontendConventions.md)
+* [API Conventions](../../docs/architecture/003%20-%20APIConventions.md)
+* [Testing Strategy](../../docs/architecture/005%20-%20TestingStrategy.md)
+* [Next.js Frontend ADR](../../docs/architecture/adr/003%20-%20NextJsFrontend.md)
+* [TanStack Query ADR](../../docs/architecture/adr/007%20-%20TanStackQueryServerState.md)
+
+The main enforced rules include:
+
+* Next.js App Router is the only routing system;
+* Vite, TanStack Router, and React Router are not used;
+* Server Components are preferred by default;
+* Client Components remain limited to interactive boundaries;
+* TanStack Query manages Server State;
+* Client State remains local whenever possible;
+* important business rules are always validated by the Backend;
+* TypeScript models represent HTTP contracts rather than Domain entities.
+
 ## Server State
 
 TanStack Query is initialized at the root of the application.

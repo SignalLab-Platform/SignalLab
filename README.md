@@ -86,6 +86,50 @@ bash scripts/validate-repository.sh
 
 The script verifies that the directories and foundational files required are present.
 
+## Architecture
+
+SignalLab is designed as a Modular Monolith composed of:
+
+* a Next.js Frontend;
+* an ASP.NET Core Backend;
+* a future PostgreSQL database;
+* logically separated business modules hosted in a single Backend application.
+
+The Backend follows Clean Architecture:
+
+```text
+SignalLab.Api
+├── SignalLab.Application
+└── SignalLab.Infrastructure
+
+SignalLab.Infrastructure
+├── SignalLab.Application
+└── SignalLab.Domain
+
+SignalLab.Application
+└── SignalLab.Domain
+
+SignalLab.Domain
+└── no dependency on another SignalLab project or infrastructure technology
+```
+
+Clean Architecture controls the direction of dependencies, while Vertical Slices organize each business use case inside its owning module.
+
+The operational architecture documentation is available here:
+
+* [Solution Architecture](docs/architecture/000%20-%20SolutionArchitecture.md)
+* [Backend Conventions](docs/architecture/001%20-%20BackendConventions.md)
+* [Frontend Conventions](docs/architecture/002%20-%20FrontendConventions.md)
+* [API Conventions](docs/architecture/003%20-%20APIConventions.md)
+* [Persistence Conventions](docs/architecture/004%20-%20PersistenceConventions.md)
+* [Testing Strategy](docs/architecture/005%20-%20TestingStrategy.md)
+* [Architecture Decision Records](docs/architecture/adr/000%20-%20ADRIndex.md)
+
+The conceptual technical reference remains `06 - SoftwareArchitecture.md`.
+
+The operational documents describe the rules currently applied in the repository. Architecture Decision Records preserve the context and consequences of the structural decisions.
+
+
 ## Development commands
 
 ### Validate the repository structure:

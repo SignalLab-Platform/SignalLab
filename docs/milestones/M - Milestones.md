@@ -586,6 +586,8 @@ Créer l’application React avec Next.js App Router.
 
 ## SL-013 — Figer l’architecture de la solution
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Documenter le Modular Monolith, les dépendances, DTO, API, persistence, tests et ADR.

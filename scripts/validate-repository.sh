@@ -11,6 +11,7 @@ validation_failed=0
 
 required_directories=(
     "apps"
+
     "apps/api"
     "apps/api/src"
     "apps/api/src/SignalLab.Api"
@@ -19,6 +20,8 @@ required_directories=(
     "apps/api/src/SignalLab.Infrastructure"
     "apps/api/tests"
     "apps/api/tests/SignalLab.Api.IntegrationTests"
+    "apps/api/tests/SignalLab.ArchitectureTests"
+
     "apps/web"
     "apps/web/public"
     "apps/web/src"
@@ -27,11 +30,17 @@ required_directories=(
     "apps/web/src/components/ui"
     "apps/web/src/lib"
     "apps/web/src/providers"
+
     "infrastructure"
+
     "docs"
     "docs/milestones"
     "docs/product"
+    "docs/architecture"
+    "docs/architecture/adr"
+
     "scripts"
+
     "tests"
 )
 
@@ -41,6 +50,7 @@ required_files=(
     ".gitignore"
     "LICENSE"
     "README.md"
+
     "global.json"
     "apps/api/SignalLab.Api.sln"
     "apps/api/Directory.Build.props"
@@ -52,6 +62,11 @@ required_files=(
     "apps/api/src/SignalLab.Infrastructure/SignalLab.Infrastructure.csproj"
     "apps/api/tests/SignalLab.Api.IntegrationTests/SignalLab.Api.IntegrationTests.csproj"
     "apps/api/tests/SignalLab.Api.IntegrationTests/PlatformEndpointsTests.cs"
+    "apps/api/tests/SignalLab.ArchitectureTests/SignalLab.ArchitectureTests.csproj"
+    "apps/api/tests/SignalLab.ArchitectureTests/RepositoryArchitecture.cs"
+    "apps/api/tests/SignalLab.ArchitectureTests/BackendDependencyTests.cs"
+    "apps/api/tests/SignalLab.ArchitectureTests/FrontendDependencyTests.cs"
+
     ".nvmrc"
     "apps/web/README.md"
     "apps/web/package.json"
@@ -71,6 +86,25 @@ required_files=(
     "apps/web/src/lib/utils.ts"
     "apps/web/src/providers/query-provider.tsx"
     "tests/README.md"
+
+    "docs/architecture/000 - SolutionArchitecture.md"
+    "docs/architecture/001 - BackendConventions.md"
+    "docs/architecture/002 - FrontendConventions.md"
+    "docs/architecture/003 - APIConventions.md"
+    "docs/architecture/004 - PersistenceConventions.md"
+    "docs/architecture/005 - TestingStrategy.md"
+
+    "docs/architecture/adr/000 - ADRIndex.md"
+    "docs/architecture/adr/001 - ModularMonolith.md"
+    "docs/architecture/adr/002 - CleanArchitectureVerticalSlices.md"
+    "docs/architecture/adr/003 - NextJsFrontend.md"
+    "docs/architecture/adr/004 - AspNetCoreBackend.md"
+    "docs/architecture/adr/005 - RestJsonOpenAPI.md"
+    "docs/architecture/adr/006 - PostgreSqlEntityFrameworkCore.md"
+    "docs/architecture/adr/007 - TanStackQueryServerState.md"
+    "docs/architecture/adr/008 - ClerkAuthentication.md"
+    "docs/architecture/adr/009 - DeferredRealtimeDistributedInfrastructure.md"
+    "docs/architecture/adr/010 - MinimalAPIs.md"
 )
 
 echo "Validating SignalLab repository structure..."
