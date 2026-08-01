@@ -546,6 +546,8 @@ Créer le monorepository officiel et ses conventions.
 
 ## SL-011 — Initialiser le Backend
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Créer la solution ASP.NET Core selon Clean Architecture.
@@ -563,6 +565,8 @@ Créer la solution ASP.NET Core selon Clean Architecture.
 ---
 
 ## SL-012 — Initialiser le Frontend
+
+**Statut :** ✅ Validée
 
 ### Description
 
