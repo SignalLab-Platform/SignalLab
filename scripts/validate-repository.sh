@@ -12,6 +12,13 @@ validation_failed=0
 required_directories=(
     "apps"
     "apps/api"
+    "apps/api/src"
+    "apps/api/src/SignalLab.Api"
+    "apps/api/src/SignalLab.Application"
+    "apps/api/src/SignalLab.Domain"
+    "apps/api/src/SignalLab.Infrastructure"
+    "apps/api/tests"
+    "apps/api/tests/SignalLab.Api.IntegrationTests"
     "apps/web"
     "infrastructure"
     "docs"
@@ -27,6 +34,17 @@ required_files=(
     ".gitignore"
     "LICENSE"
     "README.md"
+    "global.json"
+    "apps/api/SignalLab.Api.sln"
+    "apps/api/Directory.Build.props"
+    "apps/api/README.md"
+    "apps/api/src/SignalLab.Api/SignalLab.Api.csproj"
+    "apps/api/src/SignalLab.Api/Program.cs"
+    "apps/api/src/SignalLab.Application/SignalLab.Application.csproj"
+    "apps/api/src/SignalLab.Domain/SignalLab.Domain.csproj"
+    "apps/api/src/SignalLab.Infrastructure/SignalLab.Infrastructure.csproj"
+    "apps/api/tests/SignalLab.Api.IntegrationTests/SignalLab.Api.IntegrationTests.csproj"
+    "apps/api/tests/SignalLab.Api.IntegrationTests/PlatformEndpointsTests.cs"
     "tests/README.md"
 )
 
@@ -49,6 +67,7 @@ done
 non_empty_files=(
     "LICENSE"
     "README.md"
+    "apps/api/README.md"
     "tests/README.md"
 )
 

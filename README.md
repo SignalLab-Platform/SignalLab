@@ -1,23 +1,22 @@
-SignalLab
+# SignalLab
 
 SignalLab is a Game User Research platform designed to transform playtest feedback into structured, comparable, and durable knowledge.
 
 This repository contains the product documentation and the future source code of the SignalLab MVP.
 
-Repository status
+## Repository status
 
 SignalLab is currently in the Platform Foundation milestone.
 
-The repository structure and development conventions are being established before the Backend, Frontend, persistence, and deployment environments are initialized.
+The ASP.NET Core Backend foundation is initialized with Clean Architecture projects, a health endpoint, runtime OpenAPI generation, and integration tests.
 
 At this stage:
 
-* the ASP.NET Core API is not initialized;
+* the ASP.NET Core API foundation is initialized;
 * the Next.js application is not initialized;
 * PostgreSQL and Entity Framework Core are not configured;
 * Docker and CI/CD are not configured;
 * no business domain is implemented.
-* Target architecture
 
 SignalLab is designed as a Modular Monolith composed of:
 
@@ -29,7 +28,8 @@ SignalLab is designed as a Modular Monolith composed of:
 
 The Backend follows Clean Architecture principles with Presentation, Application, Domain, and Infrastructure responsibilities.
 
-Repository structure
+## Repository structure
+
 SignalLab/
 ├── apps/
 │   ├── api/             # ASP.NET Core Backend
@@ -46,7 +46,7 @@ SignalLab/
 ├── LICENSE
 └── README.md
 
-Documentation
+## Documentation
 
 The product documentation is the source of truth for SignalLab.
 
@@ -63,16 +63,15 @@ The main documents are located in docs/product/ and define:
 
 Implementation scope and acceptance criteria are defined in docs/milestones/.
 
-Current requirements
-
-The current repository validation requires:
+## Current requirements
 
 * Git;
-* Bash.
+* Bash;
+* .NET SDK 10.0.302 or a compatible .NET 10 SDK allowed by `global.json`.
 
-Additional requirements such as the .NET SDK, Node.js, Docker, and PostgreSQL will be documented when their corresponding applications and infrastructure are initialized.
+Node.js, Docker, and PostgreSQL will be documented when their corresponding applications and infrastructure are initialized.
 
-Repository validation
+## Repository validation
 
 Run the structural validation from the repository root:
 
@@ -80,13 +79,22 @@ bash scripts/validate-repository.sh
 
 The script verifies that the directories and foundational files required are present.
 
-Development commands
+## Development commands
 
-No Backend or Frontend development command is available yet.
+Validate the repository structure:
 
-Commands for building, testing, and running the applications will be added as the corresponding specifications are implemented.
+```bash
+bash scripts/validate-repository.sh
 
-License
+dotnet restore apps/api/SignalLab.Api.sln
+dotnet build apps/api/SignalLab.Api.sln --configuration Release
+dotnet test apps/api/SignalLab.Api.sln --configuration Release
+dotnet run --launch-profile https --project apps/api/src/SignalLab.Api/SignalLab.Api.csproj
+```
+
+The Frontend has not been initialized yet.
+
+## License
 
 SignalLab is proprietary software.
 
