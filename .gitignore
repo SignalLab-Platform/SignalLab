@@ -17,10 +17,7 @@
 # VS Code
 # ==========================
 
-.vscode/settings.json
-
-# garder launch/tasks/extensions
-!.vscode/
+.vscode/*
 !.vscode/extensions.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -43,6 +40,16 @@ dist/
 build/
 
 coverage/
+
+# ==========================
+# Next.js
+# ==========================
+
+.next/
+out/
+.turbo/
+.vercel/
+*.tsbuildinfo
 
 # ==========================
 # Logs

@@ -1,7 +1,7 @@
 # M00 — MVP Definition
 
 **Version :** 1.0  
-**Statut :** 🟡 Draft  
+**Statut :** ✅ Validée
 **Dernière mise à jour :** 31/07/2026  
 **Milestone suivante :** M01 — Platform Foundation
 
@@ -446,6 +446,8 @@ Identifier précisément les capacités analytiques couvertes par le MVP.
 
 ## SL-008 — Valider officiellement le MVP
 
+**Statut :** ✅ Validée
+
 ### Description
 
 La validation de cette Spec marque le début du développement logiciel.
@@ -523,6 +525,8 @@ Exécuter CI et premier déploiement
 ---
 
 ## SL-010 — Initialiser le dépôt
+
+**Statut :** ✅ Validée
 
 ### Description
 
