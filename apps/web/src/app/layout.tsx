@@ -1,30 +1,58 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 
-import { QueryProvider } from "@/providers/query-provider";
+import { APPEARANCE_INITIALIZER_SCRIPT } from "@/lib/appearance";
+import { SIDEBAR_INITIALIZER_SCRIPT } from "@/lib/sidebar";
+import { AppProviders } from "@/providers/app-providers";
 
 import "./globals.css";
 
-const geist = Geist({
+const geist = Geist(
+{
   subsets: ["latin"],
   variable: "--font-geist-sans",
   display: "swap",
 });
 
-export const metadata: Metadata = {
+export const metadata: Metadata =
+{
   title: "SignalLab",
   description: "Game User Research platform",
 };
 
-export default function RootLayout({
+export default function RootLayout(
+{
   children,
-}: Readonly<{
+}: Readonly<
+{
   children: React.ReactNode;
-}>) {
+}>)
+{
   return (
-    <html lang="en" className={geist.variable}>
+    <html
+      lang="en"
+      className={geist.variable}
+      suppressHydrationWarning
+    >
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <Script
+          id="appearance-initializer"
+          strategy="beforeInteractive"
+        >
+          {APPEARANCE_INITIALIZER_SCRIPT}
+        </Script>
+
+        <Script
+          id="sidebar-initializer"
+          strategy="beforeInteractive"
+        >
+          {SIDEBAR_INITIALIZER_SCRIPT}
+        </Script>
+
+        <AppProviders>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

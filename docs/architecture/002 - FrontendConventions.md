@@ -609,10 +609,124 @@ getProject
 createProject
 archiveProject
 ```
+---
+
+## 14. Application Shell
+
+L’architecture détaillée du Shell est documentée dans [`006 - ApplicationShell.md`](./006%20-%20ApplicationShell.md).
+
+Toutes les routes appartenant à l’application principale sont placées dans le Route Group Next.js :
+
+```text
+src/app/(application)/
+```
+
+Le layout du Route Group porte l’`ApplicationViewport` et l’`AppShell`.
+
+Une page applicative fournit uniquement le contenu propre à sa route. Elle ne doit jamais réinstancier :
+
+* le `Header` ;
+* la `Sidebar` ;
+* l’`AppContent` ;
+* l’`ApplicationViewport`.
+
+Les responsabilités restent strictement séparées :
+
+```text
+Header
+→ identité et contrôles globaux
+
+Sidebar
+→ future Context Navigation
+
+Content
+→ contenu de la route et future Local Navigation
+```
+
+Les composants métier ne modifient pas directement la grille, les dimensions ou le comportement de défilement du Shell.
+
+### 14.1 Préférences du Shell
+
+Les préférences locales actuelles sont :
+
+| Préférence | Clé `localStorage`          | Valeurs                 |
+| ---------- | --------------------------- | ----------------------- |
+| Apparence  | `signallab.appearance.mode` | `light`, `dark`         |
+| Sidebar    | `signallab.shell.sidebar`   | `expanded`, `collapsed` |
+
+Toute nouvelle préférence persistée doit :
+
+* posséder une clé préfixée par `signallab.` ;
+* utiliser un type TypeScript fermé ;
+* prévoir une valeur par défaut déterministe ;
+* gérer l’indisponibilité de `localStorage` ;
+* éviter toute divergence entre le rendu serveur et le premier rendu client.
+
+### 14.2 Server Components et Client Components
+
+Les composants du Shell restent des Server Components lorsqu’ils ne nécessitent aucune interaction navigateur.
+
+Un composant devient Client Component uniquement lorsqu’il utilise notamment :
+
+* un Hook React client ;
+* un événement utilisateur ;
+* `localStorage` ;
+* `document` ou `window` ;
+* un Context client.
+
+La frontière client doit rester aussi locale que possible.
+
+Exemples actuels :
+
+```text
+AppHeader
+→ Server Component
+
+AppearanceToggle
+→ Client Component
+
+AppSidebar
+→ Client Component
+```
+
+### 14.3 Apparence
+
+Les composants ne contiennent jamais directement les couleurs Light ou Dark.
+
+Ils consomment les tokens sémantiques définis dans `globals.css`.
+
+Les sélecteurs `.dark` et les attributs racines contrôlent les variantes globales. Les composants fonctionnels ne doivent pas dupliquer la logique de thème.
+
+### 14.4 Desktop First
+
+SignalLab ne fournit pas d’interface mobile.
+
+Les composants applicatifs ne doivent pas créer de comportement métier mobile alternatif.
+
+La protection `DesktopRequired` reste portée par l’`ApplicationViewport`.
+
+Les ajustements autorisés concernent uniquement les dimensions des fenêtres desktop sans changer les responsabilités du Header, de la Sidebar et du Content.
+
+### 14.5 Frontière avec la navigation
+
+La présence d’un emplacement de navigation dans la Sidebar ne constitue pas l’architecture de navigation.
+
+Les concepts suivants restent propriétaires de SL-015 :
+
+* Context Navigation ;
+* Local Navigation ;
+* Navigation State ;
+* reconstruction depuis l’URL ;
+* `Explorer` ;
+* `Workspace` ;
+* `Document`.
+
+Aucun composant de SL-014 ne doit anticiper leur état ou leurs règles.
+
 
 ---
 
-# 14. Styling
+# 15. Styling
 
 Tailwind CSS constitue l’outil principal de styling.
 
@@ -622,7 +736,7 @@ Un composant réutilisable est créé lorsqu’un ensemble de styles et de compo
 
 Les fichiers CSS spécifiques sont réservés aux besoins qui ne sont pas raisonnablement exprimables avec les conventions existantes.
 
-## 14.1 Design Tokens
+## 15.1 Design Tokens
 
 Les couleurs, rayons, espacements et styles typographiques récurrents doivent utiliser des Design Tokens.
 
@@ -630,7 +744,7 @@ Les valeurs arbitraires répétées sont évitées.
 
 shadcn/ui fournit une base technique de tokens, mais ne définit pas l’identité visuelle finale de SignalLab.
 
-## 14.2 Variants
+## 15.2 Variants
 
 Les variants de composants réutilisables peuvent utiliser `class-variance-authority`.
 
@@ -650,7 +764,7 @@ Un variant ne doit pas être ajouté pour contourner un composant mal défini.
 
 ---
 
-# 15. Typographie
+# 16. Typographie
 
 Geist est la police fonctionnelle de SignalLab.
 
@@ -679,7 +793,7 @@ Son intégration, ses fichiers, ses tokens et ses mentions de licence appartienn
 
 ---
 
-# 16. Accessibilité
+# 17. Accessibilité
 
 Les composants doivent conserver les comportements accessibles fournis par les primitives utilisées.
 
@@ -698,7 +812,7 @@ Un `div` interactif ne doit pas remplacer un `button` ou un lien sans justificat
 
 ---
 
-# 17. Gestion des erreurs
+# 18. Gestion des erreurs
 
 Les erreurs réseau et métier doivent produire un état d’interface explicite.
 
@@ -718,7 +832,7 @@ Le texte affiché à l’utilisateur doit rester utile et compréhensible.
 
 ---
 
-# 18. États de chargement
+# 19. États de chargement
 
 Une opération asynchrone doit fournir un feedback approprié.
 
@@ -736,7 +850,7 @@ TanStack Query peut conserver des données précédentes lorsque cela améliore 
 
 ---
 
-# 19. Formulaires
+# 20. Formulaires
 
 Les formulaires distinguent :
 
@@ -761,7 +875,7 @@ Son ajout doit répondre à un besoin réel.
 
 ---
 
-# 20. Tests
+# 21. Tests
 
 Les composants sont testés selon la valeur de leur comportement.
 
@@ -794,7 +908,7 @@ La stratégie complète est définie dans :
 
 ---
 
-# 21. Patterns exclus par défaut
+# 22. Patterns exclus par défaut
 
 Les éléments suivants ne sont pas utilisés sans besoin démontré :
 
@@ -813,7 +927,7 @@ Les éléments suivants ne sont pas utilisés sans besoin démontré :
 
 ---
 
-# 22. Checklist d’une nouvelle Feature
+# 23. Checklist d’une nouvelle Feature
 
 Avant validation d’une Feature Frontend :
 
@@ -834,7 +948,7 @@ Avant validation d’une Feature Frontend :
 
 ---
 
-# 23. Références
+# 24. Références
 
 * `000 - SolutionArchitecture.md`
 * `001 - BackendConventions.md`

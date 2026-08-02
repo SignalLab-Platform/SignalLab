@@ -123,6 +123,7 @@ The operational architecture documentation is available here:
 * [API Conventions](docs/architecture/003%20-%20APIConventions.md)
 * [Persistence Conventions](docs/architecture/004%20-%20PersistenceConventions.md)
 * [Testing Strategy](docs/architecture/005%20-%20TestingStrategy.md)
+* [Application Shell](docs/architecture/006%20-%20ApplicationShell.md) — structure permanente du Header, de la Sidebar et du Content, préférences d’apparence, persistance de la Sidebar et protection Desktop Required.
 * [Architecture Decision Records](docs/architecture/adr/000%20-%20ADRIndex.md)
 
 The conceptual technical reference remains `06 - SoftwareArchitecture.md`.
