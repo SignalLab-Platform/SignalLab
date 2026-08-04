@@ -3,6 +3,23 @@ import { render, screen } from "@testing-library/react";
 import { ApplicationViewport } from "@/components/shell/application-viewport";
 import { AppearanceProvider } from "@/providers/appearance-provider";
 
+jest.mock("next/navigation", () =>
+{
+  return {
+    usePathname: () => "/home",
+  };
+});
+
+jest.mock(
+  "@/components/analysis/analysis-overlay-controller",
+  () =>
+  {
+    return {
+      AnalysisOverlayController: () => null,
+    };
+  }
+);
+
 describe("ApplicationViewport", () =>
 {
   beforeEach(() =>

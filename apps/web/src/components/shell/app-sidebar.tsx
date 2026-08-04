@@ -1,7 +1,14 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import
+{
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
+
 import { useState } from "react";
+
+import { ContextNavigation } from "@/components/navigation/context-navigation";
 
 import
 {
@@ -29,9 +36,9 @@ export function AppSidebar()
   }
 
   return (
-    <nav
+    <aside
       id="application-sidebar"
-      aria-label="Context navigation"
+      aria-label="Application sidebar"
       className="min-h-0 min-w-0 overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
     >
       <div className="flex h-full min-h-0 flex-col">
@@ -69,20 +76,11 @@ export function AppSidebar()
 
         <div
           id="application-sidebar-content"
-          data-sidebar-expanded-only
-          className="min-h-0 overflow-y-auto p-4"
+          className="min-h-0 flex-1 overflow-y-auto p-2"
         >
-          <div className="rounded-lg border border-dashed border-sidebar-border bg-sidebar-accent/40 p-4">
-            <p className="text-sm font-medium">
-              No context selected
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Context navigation will appear here when an application area is available.
-            </p>
-          </div>
+          <ContextNavigation />
         </div>
       </div>
-    </nav>
+    </aside>
   );
 }

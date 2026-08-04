@@ -33,6 +33,7 @@ The Backend follows Clean Architecture principles with Presentation, Application
 
 ## Repository structure
 
+```text
 SignalLab/
 ├── apps/
 │   ├── api/             # ASP.NET Core Backend
@@ -48,6 +49,7 @@ SignalLab/
 ├── .gitignore
 ├── LICENSE
 └── README.md
+```
 
 ## Documentation
 

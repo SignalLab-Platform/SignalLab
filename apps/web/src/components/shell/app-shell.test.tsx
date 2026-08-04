@@ -3,6 +3,23 @@ import { render, screen } from "@testing-library/react";
 import { AppShell } from "@/components/shell/app-shell";
 import { AppearanceProvider } from "@/providers/appearance-provider";
 
+jest.mock("next/navigation", () =>
+{
+  return {
+    usePathname: () => "/home",
+  };
+});
+
+jest.mock(
+  "@/components/analysis/analysis-overlay-controller",
+  () =>
+  {
+    return {
+      AnalysisOverlayController: () => null,
+    };
+  }
+);
+
 describe("AppShell", () =>
 {
   beforeEach(() =>
@@ -42,6 +59,18 @@ describe("AppShell", () =>
       {
         name: "Switch to dark mode",
       })
+    ).toBeInTheDocument();
+
+    expect(
+      document.getElementById(
+        "application-content-scrollport"
+      )
+    ).toBeInTheDocument();
+
+    expect(
+      document.getElementById(
+        "application-content-overlay-root"
+      )
     ).toBeInTheDocument();
   });
 });

@@ -1,49 +1,28 @@
-import { render, screen } from "@testing-library/react";
+import { redirect } from "next/navigation";
 
-import Home from "./page";
+import RootPage from "./page";
+import { HOME_ROUTE } from "@/navigation/navigation-routes";
 
-describe("Home", () =>
+jest.mock("next/navigation", () =>
 {
-  it("renders the application shell foundation content", () =>
+  return {
+    redirect: jest.fn(),
+  };
+});
+
+describe("RootPage", () =>
+{
+  const mockedRedirect = jest.mocked(redirect);
+
+  beforeEach(() =>
   {
-    render(<Home />);
+    mockedRedirect.mockClear();
+  });
 
-    expect(
-      screen.getByRole("heading",
-      {
-        level: 1,
-        name: "Application shell",
-      })
-    ).toBeInTheDocument();
+  it("redirects the application root to Personal Home", () =>
+  {
+    RootPage();
 
-    expect(
-      screen.getByText(
-        "Header, Sidebar, and Content are now hosted by a persistent application layout."
-      )
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("heading",
-      {
-        level: 2,
-        name: "Header",
-      })
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("heading",
-      {
-        level: 2,
-        name: "Sidebar",
-      })
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("heading",
-      {
-        level: 2,
-        name: "Content",
-      })
-    ).toBeInTheDocument();
+    expect(mockedRedirect).toHaveBeenCalledWith(HOME_ROUTE);
   });
 });

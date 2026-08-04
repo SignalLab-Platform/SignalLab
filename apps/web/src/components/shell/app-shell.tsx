@@ -16,7 +16,7 @@ export function AppShell(
     <div className="grid h-dvh grid-rows-[4rem_minmax(0,1fr)] overflow-hidden bg-background">
       <AppHeader />
 
-      <div className="grid min-h-0 min-w-0 grid-cols-[var(--application-sidebar-width)_minmax(0,1fr)] transition-[grid-template-columns] duration-200 ease-out motion-reduce:transition-none">
+      <div className="grid min-h-0 min-w-0 grid-cols-[var(--application-sidebar-width)_minmax(0,1fr)]">
         <AppSidebar />
 
         <AppContent>

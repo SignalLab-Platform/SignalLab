@@ -12,6 +12,13 @@ import
   applySidebarState,
 } from "@/lib/sidebar";
 
+jest.mock("next/navigation", () =>
+{
+  return {
+    usePathname: () => "/home",
+  };
+});
+
 describe("AppSidebar", () =>
 {
   beforeEach(() =>
@@ -30,7 +37,20 @@ describe("AppSidebar", () =>
     });
 
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("No context selected")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link",
+      {
+        name: "Home",
+      })
+    ).toHaveAttribute("aria-current", "location");
+
+    expect(
+      screen.getByRole("link",
+      {
+        name: "Demo Organization",
+      })
+    ).toBeInTheDocument();
   });
 
   it("collapses the sidebar and persists the choice", () =>

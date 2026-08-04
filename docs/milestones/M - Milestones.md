@@ -606,6 +606,8 @@ Documenter le Modular Monolith, les dépendances, DTO, API, persistence, tests e
 
 ## SL-014 — Construire l’Application Shell
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Implémenter le Header, la Sidebar et le Content permanents.
@@ -624,6 +626,8 @@ Implémenter le Header, la Sidebar et le Content permanents.
 ---
 
 ## SL-015 — Implémenter l’architecture de navigation
+
+**Statut :** ✅ Validée
 
 ### Description
 
