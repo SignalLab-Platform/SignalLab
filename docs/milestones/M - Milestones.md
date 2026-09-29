@@ -668,6 +668,8 @@ Installer et configurer PostgreSQL pour les environnements locaux et Docker.
 
 ## SL-017 — Configurer Entity Framework Core
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Définir DbContext, conventions Fluent API et migrations.
@@ -685,6 +687,8 @@ Définir DbContext, conventions Fluent API et migrations.
 ---
 
 ## SL-018 — Configurer les environnements
+
+**Statut :** ✅ Validée
 
 ### Description
 

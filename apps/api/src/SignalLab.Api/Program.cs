@@ -1,7 +1,10 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SignalLab.Infrastructure;
+using SignalLab.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+EnvironmentConfiguration.Validate(builder.Environment);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks();

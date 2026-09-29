@@ -79,33 +79,43 @@ qui décrit les variables nécessaires sans contenir de secret réel.
 
 ---
 
-# 4. Chaîne de connexion
+# 4. Chaîne de connexion de l'API
 
-La chaîne de connexion ASP.NET Core est externalisée sous la clé :
-
-```text
-ConnectionStrings__Postgres
-```
-
-ASP.NET Core interprète cette variable comme :
+L'API utilise la clé de configuration ASP.NET Core :
 
 ```text
 ConnectionStrings:Postgres
 ```
 
-Pour une API exécutée directement sur la machine de développement, l'hôte PostgreSQL est :
+Cette valeur n'est pas stockée dans `.env` en développement local.
+
+En `Development`, elle est fournie par .NET User Secrets.
+
+En `Staging` et `Production`, elle est fournie par l'environnement d'exécution. Une variable d'environnement ASP.NET Core peut utiliser :
 
 ```text
-localhost
+ConnectionStrings__Postgres
 ```
 
-Pour un service exécuté dans le réseau Docker Compose, l'hôte PostgreSQL est :
+qui est automatiquement interprété comme :
 
 ```text
-postgres
+ConnectionStrings:Postgres
 ```
 
-La configuration spécifique des environnements Development, Staging et Production appartient à SL-018.
+Lorsque l'API est exécutée directement sur la machine de développement, PostgreSQL est accessible via :
+
+```text
+localhost:5432
+```
+
+Lorsqu'un service sera exécuté dans le réseau Docker Compose, PostgreSQL sera accessible via :
+
+```text
+postgres:5432
+```
+
+La gestion détaillée des environnements et des secrets est définie dans `010 - Environments.md`.
 
 ---
 
@@ -238,30 +248,22 @@ PostgreSQL initialise une nouvelle base avec les valeurs actuelles du `.env`.
 
 # 10. Mot de passe PostgreSQL
 
-`POSTGRES_PASSWORD` est utilisé lors de l'initialisation initiale du volume PostgreSQL.
+`POSTGRES_PASSWORD` est utilisé par l'image PostgreSQL lors de l'initialisation d'un nouveau volume Docker.
 
-Modifier ensuite cette valeur dans `.env` ne modifie pas automatiquement le mot de passe du rôle PostgreSQL déjà stocké dans un volume existant.
+Modifier ensuite cette valeur dans `.env` ne modifie pas automatiquement le mot de passe du rôle PostgreSQL déjà enregistré dans un volume existant.
 
-Les valeurs :
+En développement local, l'API possède séparément sa chaîne de connexion PostgreSQL dans .NET User Secrets.
 
-```text
-POSTGRES_PASSWORD
-```
+Les informations d'identification utilisées par PostgreSQL et celles configurées pour l'API doivent donc correspondre, sans être stockées ensemble dans un fichier versionné.
 
-et le mot de passe contenu dans :
-
-```text
-ConnectionStrings__Postgres
-```
-
-doivent rester cohérentes.
-
-Lorsqu'une base locale encore vide doit être réalignée avec une nouvelle configuration, le volume peut être recréé avec :
+Lorsqu'une base locale encore jetable doit être réinitialisée avec les valeurs actuelles du `.env` :
 
 ```powershell
 docker compose down -v
 docker compose up -d postgres
 ```
+
+Si les informations d'identification PostgreSQL ont changé, la chaîne `ConnectionStrings:Postgres` conservée dans .NET User Secrets doit également être mise à jour.
 
 ---
 
