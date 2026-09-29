@@ -648,6 +648,8 @@ Construire Context Navigation, Local Navigation, restauration d’URL et modèle
 
 ## SL-016 — Configurer PostgreSQL
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Installer et configurer PostgreSQL pour les environnements locaux et Docker.

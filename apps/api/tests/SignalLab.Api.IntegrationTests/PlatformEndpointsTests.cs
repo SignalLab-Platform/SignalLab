@@ -7,6 +7,9 @@ namespace SignalLab.Api.IntegrationTests;
 
 public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
+    private const string TestPostgresConnectionString =
+        "Host=localhost;Port=5432;Database=signallab_tests;Username=signallab;Password=test";
+
     private readonly WebApplicationFactory<Program> factory;
 
     public PlatformEndpointsTests(WebApplicationFactory<Program> factory)
@@ -14,6 +17,9 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
         this.factory = factory.WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Development");
+            builder.UseSetting(
+                "ConnectionStrings:Postgres",
+                TestPostgresConnectionString);
         });
     }
 
