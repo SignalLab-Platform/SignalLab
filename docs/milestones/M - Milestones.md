@@ -459,8 +459,8 @@ La validation de cette Spec marque le début du développement logiciel.
 # M01 — Platform Foundation
 
 **Version :** 3.0
-**Statut :** 🟡 Draft
-**Dernière mise à jour :** 01/08/2026
+**Statut :** ✅ Validée
+**Dernière mise à jour :** 30/09/2026
 **Milestone suivante :** M02
 
 ---
@@ -748,6 +748,8 @@ Créer GitHub Actions pour build, lint et tests.
 
 ## SL-021 — Réaliser le premier déploiement
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Déployer le Shell et l’API de santé.
@@ -765,6 +767,8 @@ Déployer le Shell et l’API de santé.
 ---
 
 ## SL-022 — Finaliser la documentation développeur
+
+**Statut :** ✅ Validée
 
 ### Description
 

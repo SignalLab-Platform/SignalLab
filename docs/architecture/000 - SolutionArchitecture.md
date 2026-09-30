@@ -84,7 +84,7 @@ Le Frontend constitue l’interface utilisateur.
 
 L’API ASP.NET Core constitue l’autorité métier.
 
-PostgreSQL constitue la source de vérité persistante lorsque la persistence est configurée.
+PostgreSQL constitue la source de vérité persistante.
 
 ---
 
@@ -313,15 +313,20 @@ Projet actuel :
 SignalLab.Infrastructure
 ```
 
-Responsabilités futures :
+Responsabilités actuelles :
 
-* Entity Framework Core ;
-* `DbContext` ;
-* configurations Fluent API ;
-* migrations ;
-* implémentations des interfaces de persistence ;
-* intégrations avec Clerk ou d’autres services externes ;
-* services techniques.
+- Entity Framework Core ;
+- `SignalLabDbContext` ;
+- configurations Fluent API ;
+- migrations ;
+- configuration de la persistence PostgreSQL ;
+- implémentations techniques des interfaces définies par les couches internes.
+
+Responsabilités introduites ultérieurement lorsqu'une Spec propriétaire le nécessite :
+
+- intégration avec Clerk ;
+- autres services externes ;
+- services techniques supplémentaires justifiés par un besoin concret.
 
 Infrastructure fournit les détails techniques attendus par les couches internes.
 
@@ -484,9 +489,17 @@ Aucune règle métier importante ne doit dépendre exclusivement d’un composan
 
 # 11. Persistence
 
-La persistence cible utilise PostgreSQL et Entity Framework Core.
+La persistence utilise PostgreSQL et Entity Framework Core.
 
-Leur implémentation appartient respectivement à SL-016 et SL-017.
+Leur configuration initiale a été réalisée respectivement par SL-016 et SL-017.
+
+Les règles opérationnelles détaillées sont documentées dans :
+
+```text
+004 - PersistenceConventions.md
+008 - PostgreSQL.md
+009 - Entity Framework Core.md
+```
 
 Règles générales :
 
@@ -536,7 +549,7 @@ Les conventions détaillées sont définies dans :
 
 # 13. Environnements
 
-L’architecture cible distingue trois environnements :
+SignalLab distingue trois environnements supportés :
 
 ```text
 Development
@@ -544,9 +557,15 @@ Staging
 Production
 ```
 
-SL-013 documente cette cible.
+SL-013 a défini cette architecture cible.
 
-SL-018 reste propriétaire de leur configuration concrète, de la validation des variables, de la gestion des secrets et des erreurs de démarrage.
+SL-018 a introduit leur configuration concrète, la validation des variables, la gestion des secrets et les erreurs de démarrage.
+
+Les règles opérationnelles sont documentées dans :
+
+```text
+010 - Environments.md
+```
 
 Aucun secret réel ne doit être commité.
 
@@ -571,7 +590,7 @@ Le Backend reste stateless afin de permettre une évolution future sans imposer 
 
 # 15. Documentation opérationnelle
 
-Les documents suivants complètent cette architecture :
+Les documents suivants constituent la documentation opérationnelle de la Platform Foundation :
 
 ```text
 000 - SolutionArchitecture.md
@@ -580,12 +599,35 @@ Les documents suivants complètent cette architecture :
 003 - APIConventions.md
 004 - PersistenceConventions.md
 005 - TestingStrategy.md
+006 - ApplicationShell.md
+007 - NavigationArchitecture.md
+008 - PostgreSQL.md
+009 - Entity Framework Core.md
+010 - Environments.md
+011 - Docker.md
+012 - CI-CD.md
+013 - FirstDeployment.md
+014 - DeveloperGuide.md
 ```
 
-Les décisions structurantes sont conservées dans :
+Leur responsabilité est de décrire les règles actuellement applicables au repository.
+
+Les décisions architecturales structurantes et leur justification sont conservées dans :
 
 ```text
 docs/architecture/adr/
+```
+
+Les documents produit et conceptuels restent situés dans :
+
+```text
+docs/product/
+```
+
+Les Milestones et Specs définissent le périmètre et l'ordre d'implémentation dans :
+
+```text
+docs/milestones/
 ```
 
 ---

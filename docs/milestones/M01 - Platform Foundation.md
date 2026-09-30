@@ -1,9 +1,9 @@
 # M01 — Platform Foundation
 
-**Version :** 2.0  
-**Statut :** 🟡 Draft  
-**Dernière mise à jour :** 31/07/2026  
-**Milestone suivante :** M02 — Identity, Users and Organizations
+**Version :** 3.0
+**Statut :** ✅ Validée
+**Dernière mise à jour :** 30/09/2026
+**Milestone suivante :** M02
 
 ---
 

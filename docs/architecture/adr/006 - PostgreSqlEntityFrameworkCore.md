@@ -1,6 +1,6 @@
 # ADR 006 — PostgreSQL et Entity Framework Core
 
-**Status :** Accepted — Not Implemented
+**Status :** Accepted
 **Date :** 2026-08-01
 **Decision Owners :** SignalLab Architecture
 **Spec propriétaire de la décision :** SL-013 — Figer l’architecture de la solution
