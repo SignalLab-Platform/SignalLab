@@ -17,7 +17,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+if (builder.Configuration.GetValue("HttpsRedirection:Enabled", true))
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapGet("/health", async (HealthCheckService healthCheckService, CancellationToken cancellationToken) =>
 {

@@ -11,8 +11,6 @@ export const HOME_ROUTE = "/home";
 export const ANALYSIS_OVERLAY_QUERY_KEY = "overlay";
 export const ANALYSIS_OVERLAY_QUERY_VALUE = "analysis";
 
-const INTERNAL_URL_BASE = "https://signallab.local";
-
 function encodeRouteSegment(value: string, parameterName: string): string
 {
   const normalizedValue = value.trim();

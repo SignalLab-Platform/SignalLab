@@ -708,6 +708,8 @@ Définir Development, Staging et Production.
 
 ## SL-019 — Configurer Docker
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Créer les images et Docker Compose nécessaires au développement.

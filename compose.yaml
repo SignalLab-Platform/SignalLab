@@ -27,5 +27,47 @@ services:
       retries: 5
       start_period: 5s
 
+    networks:
+      - signallab
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+
+    image: signallab-api:local
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      HttpsRedirection__Enabled: "false"
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - signallab
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+
+    image: signallab-web:local
+
+    ports:
+      - "3000:3000"
+
+    networks:
+      - signallab
+
 volumes:
   postgres_data:
+
+networks:
+  signallab:
+    driver: bridge
