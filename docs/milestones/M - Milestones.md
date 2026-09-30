@@ -728,6 +728,8 @@ Créer les images et Docker Compose nécessaires au développement.
 
 ## SL-020 — Mettre en place la CI/CD
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Créer GitHub Actions pour build, lint et tests.
