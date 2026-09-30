@@ -145,7 +145,7 @@ Exemples :
 | 003 | `003 - NextJsFrontend.md`                            | Utiliser Next.js App Router pour le Frontend          | Accepted                   |
 | 004 | `004 - AspNetCoreBackend.md`                         | Utiliser ASP.NET Core pour le Backend                 | Accepted                   |
 | 005 | `005 - RestJsonOpenAPI.md`                           | Utiliser REST, JSON et OpenAPI                        | Accepted                   |
-| 006 | `006 - PostgreSqlEntityFrameworkCore.md`             | Utiliser PostgreSQL et Entity Framework Core          | Accepted — Not Implemented |
+| 006 | `006 - PostgreSqlEntityFrameworkCore.md`             | Utiliser PostgreSQL et Entity Framework Core          | Accepted
 | 007 | `007 - TanStackQueryServerState.md`                  | Utiliser TanStack Query pour le Server State          | Accepted                   |
 | 008 | `008 - ClerkAuthentication.md`                       | Déléguer l’authentification à Clerk                   | Accepted — Not Implemented |
 | 009 | `009 - DeferredRealtimeDistributedInfrastructure.md` | Différer le temps réel et l’infrastructure distribuée | Accepted                   |
