@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+
 import { ApplicationViewport } from "@/components/shell/application-viewport";
 
 type ApplicationLayoutProps =
@@ -5,8 +7,10 @@ type ApplicationLayoutProps =
   children: React.ReactNode;
 };
 
-export default function ApplicationLayout({ children }: Readonly<ApplicationLayoutProps>)
+export default async function ApplicationLayout({ children }: Readonly<ApplicationLayoutProps>)
 {
+  await auth.protect();
+
   return (
     <ApplicationViewport>
       {children}

@@ -337,3 +337,23 @@ Les secrets sont externalisés.
 Le staging est exclu de l'indexation publique.
 La même architecture pourra évoluer vers la production sans modifier les
 responsabilités fondamentales du frontend, de l'API ou de la persistence.
+
+---
+
+## 14. Évolutions après SL-021
+
+Le staging établi par SL-021 sert de plateforme de validation aux Milestones suivantes.
+
+SL-023 a ensuite ajouté sur ce même environnement :
+
+- l'authentification Clerk ;
+- les parcours d'inscription, connexion et déconnexion ;
+- la protection du contexte applicatif authentifié ;
+- la validation JWT côté API ;
+- la validation du claim `azp` ;
+- l'exposition de l'identité externe `sub` ;
+- la politique CORS entre `staging.signallab.dev` et `api.staging.signallab.dev`.
+
+Les configurations correspondantes sont injectées dans les services de staging sans modifier les responsabilités fondamentales définies par SL-021.
+
+Le staging reste temporairement déployable depuis une branche de feature pendant sa validation. Après validation et fusion, les services reviennent sur `main`.

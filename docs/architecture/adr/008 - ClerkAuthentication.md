@@ -1,6 +1,6 @@
 # ADR 008 — Clerk Authentication
 
-**Status :** Accepted — Not Implemented
+**Status :** Accepted — Implemented
 **Date :** 2026-08-01
 **Decision Owners :** SignalLab Architecture
 **Spec propriétaire de la décision :** SL-013 — Figer l’architecture de la solution
@@ -138,15 +138,15 @@ Pour une route protégée, ASP.NET Core doit :
 1. recevoir le JWT ;
 2. vérifier sa signature ;
 3. vérifier son émetteur ;
-4. vérifier son audience lorsque configurée ;
-5. vérifier son expiration ;
-6. extraire l’identité externe ;
-7. résoudre le `User` SignalLab ;
-8. exécuter les contrôles de Permission et de multi-tenancy.
+4. vérifier son expiration ;
+5. vérifier l'`azp` (`Authorized Party`) contre les origines Frontend explicitement autorisées ;
+6. extraire l'identité externe depuis le claim `sub`.
+
+La résolution du `User` SignalLab à partir de cette identité externe appartient au domaine User introduit après SL-023.
 
 Un token valide prouve une identité.
 
-Il ne prouve pas l’autorisation d’accéder à une ressource métier.
+Il ne prouve pas l'autorisation d'accéder à une ressource métier.
 
 ---
 
@@ -199,7 +199,9 @@ Ces cycles ne doivent pas être confondus.
 
 Une suspension, suppression ou modification de compte Clerk peut nécessiter une synchronisation avec SignalLab.
 
-La stratégie exacte de synchronisation sera définie dans SL-023 et SL-024.
+SL-023 établit uniquement l'identité externe authentifiée.
+
+La création et la synchronisation du `User` métier SignalLab à partir de cette identité appartiennent à SL-024.
 
 Aucune règle de synchronisation supplémentaire n’est imposée par SL-013 au-delà de la séparation des responsabilités.
 
@@ -207,9 +209,18 @@ Aucune règle de synchronisation supplémentaire n’est imposée par SL-013 au-
 
 # Secrets and Configuration
 
-Les clés Clerk sont fournies par configuration d’environnement.
+La configuration Clerk dépend de l'environnement.
 
-Aucun secret réel n’est commité.
+Le Backend configure notamment :
+
+- l'`Issuer` Clerk attendu ;
+- les `AuthorizedParties` autorisées.
+
+Le Frontend utilise les variables publiques nécessaires au SDK Clerk.
+
+Les secrets éventuels sont fournis exclusivement par configuration d'environnement.
+
+Aucun secret réel n'est commité.
 
 Les environnements cibles sont :
 

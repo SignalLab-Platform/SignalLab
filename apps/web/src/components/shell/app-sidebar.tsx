@@ -10,6 +10,8 @@ import { useState } from "react";
 
 import { ContextNavigation } from "@/components/navigation/context-navigation";
 
+import { UserMenu } from "@/components/identity/user-menu";
+
 import
 {
   applySidebarState,
@@ -79,6 +81,10 @@ export function AppSidebar()
           className="min-h-0 flex-1 overflow-y-auto p-2"
         >
           <ContextNavigation />
+        </div>
+
+        <div className="shrink-0 border-t border-sidebar-border p-2">
+          <UserMenu />
         </div>
       </div>
     </aside>

@@ -861,6 +861,8 @@ Les Permissions sont appliquées
 
 ## SL-023 — Implémenter l’authentification
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Intégrer Clerk avec Next.js et valider ses JWT dans ASP.NET Core.
@@ -873,7 +875,17 @@ Intégrer Clerk avec Next.js et valider ses JWT dans ASP.NET Core.
 
 ### Definition of Done
 
-- Implémenter l’authentification validé par les tests et la documentation.
+- Authentification Clerk intégrée au Frontend.
+- Inscription, connexion et déconnexion fonctionnelles.
+- Session persistée.
+- Contexte applicatif protégé.
+- JWT Clerk validé côté Backend.
+- `Issuer`, expiration, signature et `Authorized Party` validés.
+- Identité externe `sub` accessible côté Backend.
+- CORS limité aux origines Frontend configurées.
+- Configuration fail-fast couverte.
+- Tests automatisés verts.
+- Validation effectuée sur le staging public.
 
 ---
 

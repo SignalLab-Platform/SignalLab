@@ -10,6 +10,13 @@ jest.mock("next/navigation", () =>
   };
 });
 
+jest.mock("@/components/identity/user-menu", () =>
+{
+  return {
+    UserMenu: () => <div data-testid="user-menu">User menu</div>,
+  };
+});
+
 jest.mock(
   "@/components/analysis/analysis-overlay-controller",
   () =>

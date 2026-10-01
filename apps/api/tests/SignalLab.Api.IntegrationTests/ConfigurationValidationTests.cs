@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using SignalLab.Api.Authentication;
 using SignalLab.Api.Configuration;
 using SignalLab.Infrastructure;
 
@@ -110,13 +111,155 @@ public sealed class ConfigurationValidationTests
         services.AddInfrastructure(configuration);
     }
 
-    private static IConfiguration CreateConfiguration(string? postgresConnectionString = null)
+    [Fact]
+    public void Authentication_MissingIssuer_ShouldFail()
+    {
+        var configuration = CreateConfiguration();
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabAuthentication(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Authentication:Clerk:Issuer' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Authentication_MissingAuthorizedParties_ShouldFail()
+    {
+        var configuration = CreateConfiguration(clerkIssuer: "https://clerk.example.test");
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabAuthentication(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Authentication:Clerk:AuthorizedParties' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Authentication_ValidConfiguration_ShouldSucceed()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: "https://clerk.example.test",
+            clerkAuthorizedParty: "https://web.example.test");
+
+        var services = new ServiceCollection();
+
+        services.AddSignalLabAuthentication(configuration);
+    }
+
+    [Fact]
+    public void Authentication_EmptyIssuer_ShouldFail()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: " ",
+            clerkAuthorizedParty: "https://web.example.test");
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabAuthentication(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Authentication:Clerk:Issuer' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Authentication_WhitespaceAuthorizedParty_ShouldFail()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: "https://clerk.example.test",
+            clerkAuthorizedParty: " ");
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabAuthentication(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Authentication:Clerk:AuthorizedParties' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Cors_MissingAllowedOrigins_ShouldFail()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: "https://clerk.example.test",
+            clerkAuthorizedParty: "https://web.example.test");
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabCors(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Cors:AllowedOrigins' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Cors_EmptyAllowedOrigins_ShouldFail()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: "https://clerk.example.test",
+            clerkAuthorizedParty: "https://web.example.test",
+            corsAllowedOrigin: " ");
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddSignalLabCors(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Cors:AllowedOrigins' is missing or empty.",
+            exception.Message);
+    }
+
+    [Fact]
+    public void Cors_ValidAllowedOrigins_ShouldSucceed()
+    {
+        var configuration = CreateConfiguration(
+            clerkIssuer: "https://clerk.example.test",
+            clerkAuthorizedParty: "https://web.example.test",
+            corsAllowedOrigin: "https://web.example.test");
+
+        var services = new ServiceCollection();
+
+        services.AddSignalLabCors(configuration);
+    }
+
+    private static IConfiguration CreateConfiguration(
+        string? postgresConnectionString = null,
+        string? clerkIssuer = null,
+        string? clerkAuthorizedParty = null,
+        string? corsAllowedOrigin = null)
     {
         var values = new Dictionary<string, string?>();
 
         if (postgresConnectionString is not null)
         {
             values["ConnectionStrings:Postgres"] = postgresConnectionString;
+        }
+
+        if (clerkIssuer is not null)
+        {
+            values["Authentication:Clerk:Issuer"] = clerkIssuer;
+        }
+
+        if (clerkAuthorizedParty is not null)
+        {
+            values["Authentication:Clerk:AuthorizedParties:0"] =
+                clerkAuthorizedParty;
+        }
+
+        if (corsAllowedOrigin is not null)
+        {
+            values["Cors:AllowedOrigins:0"] = corsAllowedOrigin;
         }
 
         return new ConfigurationBuilder()
