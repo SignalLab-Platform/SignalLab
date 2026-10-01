@@ -12,6 +12,13 @@ import
   applySidebarState,
 } from "@/lib/sidebar";
 
+jest.mock("@/components/identity/user-menu", () =>
+{
+  return {
+    UserMenu: () => <div data-testid="user-menu">User menu</div>,
+  };
+});
+
 jest.mock("next/navigation", () =>
 {
   return {

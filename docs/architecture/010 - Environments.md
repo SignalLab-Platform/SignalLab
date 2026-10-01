@@ -192,7 +192,18 @@ correspond à :
 ConnectionStrings:Postgres
 ```
 
-Cette convention sera utilisée par l'infrastructure de déploiement lorsqu'elle sera introduite.
+Cette convention est utilisée par l'infrastructure de déploiement.
+
+Les configurations de staging utilisent notamment cette convention pour :
+
+```text
+ConnectionStrings__Postgres
+Authentication__Clerk__Issuer
+Authentication__Clerk__AuthorizedParties__0
+Cors__AllowedOrigins__0
+```
+
+Les valeurs exactes dépendent de l'environnement et ne doivent pas être dupliquées inutilement dans le repository.
 
 Aucun secret Staging ou Production ne doit être commité.
 
@@ -235,7 +246,42 @@ Elle vérifie la configuration, pas la disponibilité de l'infrastructure.
 
 ---
 
-# 9. Validation fail-fast
+# 9. Configuration Authentication et CORS
+
+L'authentification Clerk nécessite côté API :
+
+```text
+Authentication:Clerk:Issuer
+Authentication:Clerk:AuthorizedParties
+```
+
+Issuer identifie l'émetteur Clerk accepté par l'API.
+
+AuthorizedParties définit les origines Frontend dont le claim JWT azp est accepté.
+
+En Development, ces valeurs peuvent provenir de appsettings.Development.json.
+
+En Staging et Production, elles sont injectées par l'environnement d'exécution.
+
+L'accès cross-origin à l'API utilise séparément :
+
+```text
+Cors:AllowedOrigins
+```
+
+Cette configuration contrôle les origines auxquelles ASP.NET Core autorise le navigateur à exposer les réponses de l'API.
+
+AuthorizedParties et AllowedOrigins répondent donc à deux responsabilités différentes :
+- AuthorizedParties participe à la validation de l'identité portée par le JWT ;
+- AllowedOrigins applique la politique CORS HTTP du Backend.
+
+Les deux configurations doivent rester cohérentes avec les domaines Frontend de l'environnement concerné.
+
+L'API échoue au démarrage lorsque `Authentication:Clerk:Issuer`, `Authentication:Clerk:AuthorizedParties` ou `Cors:AllowedOrigins` est absent ou vide selon les règles attendues.
+
+---
+
+# 10. Validation fail-fast
 
 Les validations sont exécutées pendant la composition de l'application.
 
@@ -259,7 +305,7 @@ L'objectif est qu'une erreur d'exploitation soit détectée immédiatement plut�
 
 ---
 
-# 10. Gestion des secrets
+# 11. Gestion des secrets
 
 Aucun secret ne doit être présent dans Git.
 
@@ -284,21 +330,23 @@ lorsqu'elles servent uniquement à tester le parsing d'une configuration et ne c
 
 ---
 
-# 11. Matrice des environnements
+# 12. Matrice des environnements
 
-| Configuration | Development | Staging | Production |
-|---|---|---|---|
-| `ASPNETCORE_ENVIRONMENT` | `Development` | `Staging` | `Production` |
-| `appsettings.json` | Oui | Oui | Oui |
-| Overrides `appsettings.{Environment}.json` | Si nécessaire | Si nécessaire | Si nécessaire |
-| .NET User Secrets | Oui | Non | Non |
-| Variables d'environnement | Possible | Oui | Oui |
-| Secrets dans Git | Jamais | Jamais | Jamais |
-| PostgreSQL | Local Docker | Injecté par l'environnement | Injecté par l'environnement |
+| Configuration                              | Development    | Staging          | Production         |
+|--------------------------------------------|----------------|------------------|--------------------|
+| `ASPNETCORE_ENVIRONMENT`                   | `Development`  | `Staging`        | `Production`       |
+| `appsettings.json`                         | Oui            | Oui              | Oui                |
+| Overrides `appsettings.{Environment}.json` | Si nécessaire  | Si nécessaire    | Si nécessaire      |
+| .NET User Secrets                          | Oui            | Non              | Non                |
+| Variables d'environnement                  | Possible       | Oui              | Oui                |
+| Secrets dans Git                           | Jamais         | Jamais           | Jamais             |
+| PostgreSQL                                 | Local Docker   | Injecté par l'environnement | Injecté par l'environnement |
+| Clerk                                      | Development instance | Staging configuration | Production configuration |
+| CORS origins                               | Local frontend | Staging frontend | Production frontend |
 
 ---
 
-# 12. Tests
+# 13. Tests
 
 Les tests automatisés vérifient notamment :
 
@@ -312,13 +360,31 @@ Les tests automatisés vérifient notamment :
 - absence de `Host` refusée ;
 - absence de `Database` refusée ;
 - absence de `Username` refusée ;
-- chaîne PostgreSQL valide acceptée.
+- chaîne PostgreSQL valide acceptée ;
+- configuration Clerk valide acceptée ;
+- `Authentication:Clerk:Issuer` absent refusé ;
+- `Authentication:Clerk:Issuer` vide refusé ;
+- `Authentication:Clerk:AuthorizedParties` absent refusé ;
+- `Authentication:Clerk:AuthorizedParties` vide refusé ;
+- configuration CORS valide acceptée ;
+- `Cors:AllowedOrigins` absent refusé ;
+- `Cors:AllowedOrigins` vide refusé ;
+- requête protégée sans token refusée avec `401 Unauthorized` ;
+- JWT valide accepté ;
+- JWT avec signature invalide refusé ;
+- JWT expiré refusé ;
+- JWT avec issuer invalide refusé ;
+- JWT sans claim `azp` refusé ;
+- JWT avec `azp` non autorisé refusé ;
+- identité externe `sub` conservée et accessible après validation du JWT ;
+- preflight CORS depuis une origine autorisée accepté ;
+- preflight CORS depuis une origine non autorisée refusé.
 
 Les validations ont également été vérifiées manuellement en exécutant réellement l'API dans les différents environnements.
 
 ---
 
-# 13. Responsabilités futures
+# 14. Responsabilités futures
 
 SL-018 définit les conventions d'environnement.
 
@@ -337,7 +403,7 @@ Les environnements finaux seront consolidés lors de la Milestone Deployment and
 
 ---
 
-# 14. État à la fin de SL-018
+# 15. État à la fin de SL-018
 
 À la fin de SL-018 :
 

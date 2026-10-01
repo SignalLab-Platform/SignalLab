@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
@@ -50,9 +51,11 @@ export default function RootLayout(
           {SIDEBAR_INITIALIZER_SCRIPT}
         </Script>
 
-        <AppProviders>
-          {children}
-        </AppProviders>
+        <ClerkProvider>
+          <AppProviders>
+            {children}
+          </AppProviders>
+        </ClerkProvider>
       </body>
     </html>
   );

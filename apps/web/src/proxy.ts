@@ -1,7 +1,7 @@
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export function proxy(request: NextRequest)
+export const proxy = clerkMiddleware((auth, request) =>
 {
   const response = NextResponse.next();
 
@@ -23,9 +23,10 @@ export function proxy(request: NextRequest)
   }
 
   return response;
-}
+});
 
-export const config = {
+export const config =
+{
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
