@@ -422,6 +422,22 @@ La suppression d'un User ne doit jamais compromettre l'intégrité historique de
 
 ---
 
+### Création
+
+Un User SignalLab est créé lors de sa première authentification valide si aucune identité métier ne correspond encore à son identité externe.
+
+Son identité SignalLab est distincte de l'identité gérée par le fournisseur d'authentification.
+
+SignalLab ne persiste aucun mot de passe, credential ou secret d'authentification dans le User.
+
+L'identifiant externe permet de retrouver de manière stable le même User lors des authentifications suivantes.
+
+L'Email initial du User est résolu depuis son identité externe et reste unique à l'échelle de SignalLab.
+
+La gestion et la synchronisation ultérieure des informations personnelles du User relèvent du cycle de vie de son profil.
+
+---
+
 ## ParticipantProfile
 
 ### Description

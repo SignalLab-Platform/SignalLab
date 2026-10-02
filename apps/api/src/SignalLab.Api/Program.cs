@@ -2,6 +2,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SignalLab.Api.Authentication;
 using SignalLab.Infrastructure;
 using SignalLab.Api.Configuration;
+using SignalLab.Application;
+using SignalLab.Application.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,7 @@ EnvironmentConfiguration.Validate(builder.Environment);
 
 builder.Services.AddSignalLabAuthentication(builder.Configuration);
 builder.Services.AddSignalLabCors(builder.Configuration);
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks();
 builder.Services.AddOpenApi();
@@ -38,17 +41,32 @@ app.MapGet("/health", async (HealthCheckService healthCheckService, Cancellation
 })
 .WithName("GetHealth");
 
-app.MapGet("/authentication/session", (HttpContext httpContext) =>
-{
-    var externalUserId = httpContext.User.FindFirst("sub")?.Value;
-
-    return Results.Ok(new
+app.MapGet(
+    "/authentication/session",
+    async (
+        HttpContext httpContext,
+        ResolveCurrentUser resolveCurrentUser,
+        CancellationToken cancellationToken) =>
     {
-        ExternalUserId = externalUserId,
-    });
-})
-.RequireAuthorization()
-.WithName("GetAuthenticationSession");
+        var externalUserId = httpContext.User.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrWhiteSpace(externalUserId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var user = await resolveCurrentUser.ExecuteAsync(
+            externalUserId,
+            cancellationToken);
+
+        return Results.Ok(new
+        {
+            UserId = user.Id.Value,
+            user.Email,
+        });
+    })
+    .RequireAuthorization()
+    .WithName("GetAuthenticationSession");
 
 app.Run();
 

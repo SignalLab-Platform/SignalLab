@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SignalLab.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SignalLab.Infrastructure.Persistence;
 namespace SignalLab.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SignalLabDbContext))]
-    partial class SignalLabDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261002104920_AddUser")]
+    partial class AddUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

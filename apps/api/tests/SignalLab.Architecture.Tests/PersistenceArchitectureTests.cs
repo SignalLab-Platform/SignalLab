@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SignalLab.Infrastructure.Persistence;
 
-namespace SignalLab.ArchitectureTests;
+namespace SignalLab.Architecture.Tests;
 
 public sealed class PersistenceArchitectureTests
 {
