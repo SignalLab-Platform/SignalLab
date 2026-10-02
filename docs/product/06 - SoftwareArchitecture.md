@@ -692,7 +692,7 @@ Le backend valide les JWT avant toute opération protégée.
 
 L'utilisateur authentifié par Clerk ne remplace pas le modèle utilisateur de SignalLab.
 
-SignalLab conserve son propre modèle métier permettant notamment de gérer :
+SignalLab conserve son propre User métier permettant notamment de gérer :
 
 - les Organizations ;
 - les Memberships ;
@@ -700,7 +700,24 @@ SignalLab conserve son propre modèle métier permettant notamment de gérer :
 - les permissions ;
 - les préférences utilisateur.
 
-Le lien entre les deux est assuré grâce à l'identifiant externe fourni par Clerk.
+Le lien entre l'identité externe et le User SignalLab est assuré par l'identifiant stable fourni par l'Identity Provider.
+
+Lorsqu'une requête authentifiée nécessite le User courant :
+
+1. le backend valide le JWT ;
+2. l'identifiant externe est extrait de l'identité authentifiée ;
+3. SignalLab recherche un User associé à cet identifiant ;
+4. si le User existe, il est réutilisé ;
+5. sinon, l'identité externe est résolue auprès de l'Identity Provider ;
+6. un nouveau User SignalLab est créé et persisté.
+
+Cette résolution est portée par l'Application Layer à travers une abstraction du fournisseur d'identité.
+
+L'intégration concrète avec Clerk appartient à l'Infrastructure.
+
+Le Domain ne dépend donc ni de Clerk ni de son SDK.
+
+Aucun mot de passe, token ou credential fourni par Clerk n'est persisté dans le User SignalLab.
 
 ---
 
@@ -829,6 +846,22 @@ Chaque évolution du schéma doit être :
 - reproductible ;
 - revue ;
 - testée avant déploiement.
+
+Les migrations destinées aux environnements déployés sont empaquetées dans un EF Core Migration Bundle lors de la construction de l'image Docker de l'API.
+
+Le bundle est généré à partir des migrations versionnées du repository et copié dans l'image runtime.
+
+Sur Render, les migrations sont exécutées par la Pre-Deploy Command avant le démarrage de la nouvelle version de l'API.
+
+Le déploiement applicatif ne doit donc pas être utilisé pour créer ou modifier implicitement le schéma au démarrage.
+
+Entity Framework Core conserve l'état des migrations appliquées dans sa table d'historique et n'applique que les migrations encore absentes.
+
+Cette stratégie permet de séparer :
+
+- la construction de l'application ;
+- l'évolution contrôlée du schéma ;
+- le démarrage de l'API.
 
 ---
 

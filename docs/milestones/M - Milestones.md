@@ -891,6 +891,8 @@ Intégrer Clerk avec Next.js et valider ses JWT dans ASP.NET Core.
 
 ## SL-024 — Créer le domaine User
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Créer le User métier global et sa liaison technique au fournisseur d’identité.
@@ -934,6 +936,7 @@ Permettre la modification des informations personnelles et préférences globale
 ### Critères d'acceptation
 
 - Prénom, nom, avatar, langue et fuseau sont persistés.
+- Les changements d'Email provenant du fournisseur d'identité sont synchronisés avec le User SignalLab sans créer une nouvelle identité métier.
 - Les changements n’altèrent aucun snapshot historique.
 
 ### Definition of Done
