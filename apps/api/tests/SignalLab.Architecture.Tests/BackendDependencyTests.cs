@@ -1,4 +1,4 @@
-namespace SignalLab.ArchitectureTests;
+namespace SignalLab.Architecture.Tests;
 
 public sealed class BackendDependencyTests
 {

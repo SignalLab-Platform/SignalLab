@@ -2,7 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Clerk.BackendAPI;
 using SignalLab.Infrastructure.Persistence;
+using SignalLab.Infrastructure.Persistence.Repositories;
+using SignalLab.Infrastructure.Identity;
+using SignalLab.Application.Identity;
+using SignalLab.Application.Users;
 
 namespace SignalLab.Infrastructure;
 
@@ -17,6 +22,16 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString);
         });
 
+        var clerkSecretKey = GetClerkSecretKey(configuration);
+
+        services.AddSingleton<IClerkBackendApi>(
+            new ClerkBackendApi(
+                bearerAuth: clerkSecretKey));
+
+        services.AddScoped<IExternalIdentityProvider, ClerkExternalIdentityProvider>();
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        
         return services;
     }
 
@@ -60,5 +75,18 @@ public static class DependencyInjection
                 "Configuration 'ConnectionStrings:Postgres' is not a valid PostgreSQL connection string.",
                 exception);
         }
+    }
+
+    private static string GetClerkSecretKey(IConfiguration configuration)
+    {
+        var secretKey = configuration["Authentication:Clerk:SecretKey"];
+
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new InvalidOperationException(
+                "Required configuration 'Authentication:Clerk:SecretKey' is missing or empty.");
+        }
+
+        return secretKey;
     }
 }

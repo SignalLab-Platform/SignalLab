@@ -6,7 +6,7 @@ using SignalLab.Api.Authentication;
 using SignalLab.Api.Configuration;
 using SignalLab.Infrastructure;
 
-namespace SignalLab.Api.IntegrationTests;
+namespace SignalLab.Api.Integration.Tests;
 
 public sealed class ConfigurationValidationTests
 {
@@ -104,11 +104,31 @@ public sealed class ConfigurationValidationTests
     public void Infrastructure_ValidPostgresConnectionString_ShouldSucceed()
     {
         var configuration = CreateConfiguration(
-            "Host=localhost;Port=5432;Database=signallab;Username=signallab;Password=test");
+            postgresConnectionString:
+                "Host=localhost;Port=5432;Database=signallab;Username=signallab;Password=test",
+            clerkSecretKey:
+                "sk_test_not-a-real-secret");
 
         var services = new ServiceCollection();
 
         services.AddInfrastructure(configuration);
+    }
+
+    [Fact]
+    public void Infrastructure_MissingClerkSecretKey_ShouldFail()
+    {
+        var configuration = CreateConfiguration(
+            postgresConnectionString:
+                "Host=localhost;Port=5432;Database=signallab;Username=signallab;Password=test");
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddInfrastructure(configuration));
+
+        Assert.Equal(
+            "Required configuration 'Authentication:Clerk:SecretKey' is missing or empty.",
+            exception.Message);
     }
 
     [Fact]
@@ -237,6 +257,7 @@ public sealed class ConfigurationValidationTests
         string? postgresConnectionString = null,
         string? clerkIssuer = null,
         string? clerkAuthorizedParty = null,
+        string? clerkSecretKey = null,
         string? corsAllowedOrigin = null)
     {
         var values = new Dictionary<string, string?>();
@@ -255,6 +276,11 @@ public sealed class ConfigurationValidationTests
         {
             values["Authentication:Clerk:AuthorizedParties:0"] =
                 clerkAuthorizedParty;
+        }
+
+        if (clerkSecretKey is not null)
+        {
+            values["Authentication:Clerk:SecretKey"] = clerkSecretKey;
         }
 
         if (corsAllowedOrigin is not null)

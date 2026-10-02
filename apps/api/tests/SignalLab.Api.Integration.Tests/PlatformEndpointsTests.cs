@@ -1,64 +1,28 @@
 using System.Net;
-using System.Text.Json;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Hosting;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
-namespace SignalLab.Api.IntegrationTests;
+namespace SignalLab.Api.Integration.Tests;
 
-public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class PlatformEndpointsTests : IClassFixture<SignalLabApiFactory>, IAsyncLifetime
 {
-    private const string TestPostgresConnectionString =
-        "Host=localhost;Port=5432;Database=signallab_tests;Username=signallab;Password=test";
+    private readonly SignalLabApiFactory factory;
 
-    private readonly WebApplicationFactory<Program> factory;
-
-    private const string TestIssuer = "https://clerk.example.test";
-    private const string TestAuthorizedParty = "https://web.example.test";
-    private const string TestAllowedOrigin = "https://web.example.test";
-    private const string TestExternalUserId = "user_test_123";
-
-    private readonly TestJwtTokenFactory tokenFactory = new();
-
-    public PlatformEndpointsTests(WebApplicationFactory<Program> factory)
+    public PlatformEndpointsTests(SignalLabApiFactory factory)
     {
-        this.factory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseEnvironment("Development");
+        this.factory = factory;
+    }
 
-            builder.UseSetting(
-                "ConnectionStrings:Postgres",
-                TestPostgresConnectionString);
+    public async Task InitializeAsync()
+    {
+        await factory.InitializeDatabaseAsync();
+        await factory.ResetTestUserAsync();
+    }
 
-            builder.UseSetting(
-                "Authentication:Clerk:Issuer",
-                TestIssuer);
-
-            builder.UseSetting(
-                "Authentication:Clerk:AuthorizedParties:0",
-                TestAuthorizedParty);
-
-            builder.UseSetting(
-                "Cors:AllowedOrigins:0",
-                TestAllowedOrigin);
-
-            builder.ConfigureServices(services =>
-            {
-                services.PostConfigure<JwtBearerOptions>(
-                    JwtBearerDefaults.AuthenticationScheme,
-                    options =>
-                    {
-                        options.Authority = null;
-                        options.ConfigurationManager = null;
-
-                        options.TokenValidationParameters.IssuerSigningKey =
-                            tokenFactory.ValidationKey;
-                    });
-            });
-        });
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     [Fact]
@@ -113,14 +77,14 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
     }
 
     [Fact]
-    public async Task AuthenticationSession_WithValidToken_ReturnsExternalUserId()
+    public async Task AuthenticationSession_WithValidToken_ReturnsResolvedUser()
     {
         using var client = CreateClient();
 
-        var token = tokenFactory.CreateToken(
-            TestIssuer,
-            TestAuthorizedParty,
-            TestExternalUserId);
+        var token = factory.TokenFactory.CreateToken(
+            SignalLabApiFactory.TestIssuer,
+            SignalLabApiFactory.TestAuthorizedParty,
+            SignalLabApiFactory.TestExternalUserId);
 
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
@@ -133,11 +97,45 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
 
         using var document = JsonDocument.Parse(content);
 
-        var externalUserId = document.RootElement
-            .GetProperty("externalUserId")
+        var userId = document.RootElement
+            .GetProperty("userId")
+            .GetGuid();
+
+        var email = document.RootElement
+            .GetProperty("email")
             .GetString();
 
-        Assert.Equal(TestExternalUserId, externalUserId);
+        Assert.NotEqual(Guid.Empty, userId);
+        Assert.Equal(SignalLabApiFactory.TestEmail, email);
+
+        using var secondResponse = await client.GetAsync(
+            "/authentication/session");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            secondResponse.StatusCode);
+
+        var secondContent =
+            await secondResponse.Content.ReadAsStringAsync();
+
+        using var secondDocument =
+            JsonDocument.Parse(secondContent);
+
+        var secondUserId = secondDocument.RootElement
+            .GetProperty("userId")
+            .GetGuid();
+
+        var secondEmail = secondDocument.RootElement
+            .GetProperty("email")
+            .GetString();
+
+        Assert.Equal(userId, secondUserId);
+        Assert.Equal(
+            SignalLabApiFactory.TestEmail,
+            secondEmail);
+        Assert.Equal(
+            1,
+            factory.ExternalIdentityProviderCallCount);
     }
 
     [Fact]
@@ -145,10 +143,10 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
     {
         using var client = CreateClient();
 
-        var token = tokenFactory.CreateToken(
+        var token = factory.TokenFactory.CreateToken(
             "https://invalid-issuer.example.test",
-            TestAuthorizedParty,
-            TestExternalUserId);
+            SignalLabApiFactory.TestAuthorizedParty,
+            SignalLabApiFactory.TestExternalUserId);
 
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
@@ -163,10 +161,10 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
     {
         using var client = CreateClient();
 
-        var token = tokenFactory.CreateToken(
-            TestIssuer,
+        var token = factory.TokenFactory.CreateToken(
+            SignalLabApiFactory.TestIssuer,
             "https://unauthorized-web.example.test",
-            TestExternalUserId);
+            SignalLabApiFactory.TestExternalUserId);
 
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
@@ -181,10 +179,10 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
     {
         using var client = CreateClient();
 
-        var token = tokenFactory.CreateToken(
-            TestIssuer,
-            TestAuthorizedParty,
-            TestExternalUserId,
+        var token = factory.TokenFactory.CreateToken(
+            SignalLabApiFactory.TestIssuer,
+            SignalLabApiFactory.TestAuthorizedParty,
+            SignalLabApiFactory.TestExternalUserId,
             notBefore: DateTime.UtcNow.AddMinutes(-10),
             expires: DateTime.UtcNow.AddMinutes(-5));
 
@@ -203,9 +201,9 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
         using var unauthorizedTokenFactory = new TestJwtTokenFactory();
 
         var token = unauthorizedTokenFactory.CreateToken(
-            TestIssuer,
-            TestAuthorizedParty,
-            TestExternalUserId);
+            SignalLabApiFactory.TestIssuer,
+            SignalLabApiFactory.TestAuthorizedParty,
+            SignalLabApiFactory.TestExternalUserId);
 
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
@@ -226,7 +224,7 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
 
         request.Headers.Add(
             "Origin",
-            TestAllowedOrigin);
+            SignalLabApiFactory.TestAllowedOrigin);
 
         request.Headers.Add(
             "Access-Control-Request-Method",
@@ -243,7 +241,7 @@ public sealed class PlatformEndpointsTests : IClassFixture<WebApplicationFactory
             response.StatusCode);
 
         Assert.Equal(
-            TestAllowedOrigin,
+            SignalLabApiFactory.TestAllowedOrigin,
             response.Headers.GetValues("Access-Control-Allow-Origin").Single());
 
         var allowedHeaders = response.Headers

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Xml.Linq;
 
-namespace SignalLab.ArchitectureTests;
+namespace SignalLab.Architecture.Tests;
 
 internal static class RepositoryArchitecture
 {
