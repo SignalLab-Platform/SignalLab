@@ -23,7 +23,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     internal TestJwtTokenFactory TokenFactory { get; } = new();
 
     public int ExternalIdentityProviderCallCount { get; private set; }
-        
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -86,6 +86,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     {
         var configuration = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
+            .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration
@@ -94,7 +95,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException(
-                "User secret 'ConnectionStrings:Postgres' is missing or empty.");
+                "Configuration 'ConnectionStrings:Postgres' is missing or empty.");
         }
 
         var connectionStringBuilder =
