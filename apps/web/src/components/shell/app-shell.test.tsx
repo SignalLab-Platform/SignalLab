@@ -64,6 +64,13 @@ describe("AppShell", () =>
     expect(
       screen.getByRole("button",
       {
+        name: "Notifications",
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button",
+      {
         name: "Switch to dark mode",
       })
     ).toBeInTheDocument();

@@ -44,7 +44,9 @@ S'il souhaite poursuivre une participation, il sélectionne l'une des `Campaigns
 
 La sélection d'une ressource établit le contexte de travail correspondant et permet au `User` d'accéder aux fonctionnalités associées.
 
-Pendant toute sa navigation dans SignalLab, le `User` peut consulter le centre de notifications afin de prendre connaissance des invitations et des événements récents le concernant.
+Pendant toute sa navigation dans SignalLab, le `User` peut consulter ses Notifications depuis l'accès global aux notifications afin de prendre connaissance des événements récents le concernant et d'accéder à leur contexte lorsqu'une cible métier existe.
+
+La consultation d'une Notification ne remplace jamais la consultation de l'entité métier concernée, qui reste la source de vérité de son état actuel.
 
 Le parcours est terminé.
 
@@ -253,7 +255,11 @@ SignalLab crée une `OrganizationInvitation` nominative liée :
 - au rôle attribué ;
 - au membre ayant créé l'`OrganizationInvitation`.
 
-Le destinataire reçoit une notification dans SignalLab.
+SignalLab crée une `Notification` destinée au `User` invité et associée à l'`OrganizationInvitation`.
+
+Cette `Notification` informe le destinataire de l'invitation et lui permet d'accéder à l'`OrganizationInvitation`.
+
+L'`OrganizationInvitation` reste la source de vérité concernant son statut, sa validité et les actions encore disponibles.
 
 L'`OrganizationInvitation` apparaît dans la liste des invitations en attente de l'`Organization`.
 
@@ -344,6 +350,7 @@ Une `OrganizationInvitation` nominative est créée et reste valide jusqu'à son
 - `OrganizationMember`
 - `Role`
 - `OrganizationInvitation`
+- `Notification`
 
 ---
 
@@ -372,7 +379,7 @@ Permettre à un `User` disposant d'un compte SignalLab de rejoindre une `Organiz
 
 ## Déclencheur
 
-Le `User` ouvre l'`OrganizationInvitation` depuis le centre de notifications ou via le lien unique associé à cette `OrganizationInvitation`.
+Le `User` ouvre l'`OrganizationInvitation` depuis la `Notification` associée ou via le lien unique associé à cette `OrganizationInvitation`.
 
 ---
 
@@ -473,6 +480,7 @@ L'`Organization` est désormais accessible depuis sa page d'accueil et le `User`
 - `OrganizationMember`
 - `Role`
 - `OrganizationInvitation`
+- `Notification`
 
 ---
 

@@ -1,10 +1,30 @@
 import { render, screen } from "@testing-library/react";
 
+import { useCurrentUser } from "@/features/current-user/use-current-user";
+
 import HomePage from "./page";
+
+jest.mock("@/features/current-user/use-current-user");
 
 describe("HomePage", () =>
 {
-  it("renders the Personal Home presentation", () =>
+  beforeEach(() =>
+  {
+    jest.clearAllMocks();
+
+    jest.mocked(useCurrentUser).mockReturnValue(
+    {
+      data:
+      {
+        id: "7e34f695-46df-4c29-9852-030783798531",
+        email: "user@example.com",
+      },
+      isPending: false,
+      isError: false,
+    } as ReturnType<typeof useCurrentUser>);
+  });
+
+  it("renders the current user's Personal Home", () =>
   {
     render(<HomePage />);
 
@@ -17,17 +37,39 @@ describe("HomePage", () =>
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("link",
+      screen.getByText("user@example.com")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading",
       {
-        name: /Demo Organization/,
+        level: 2,
+        name: "Organizations",
       })
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("link",
+      screen.getByText("No organizations available yet.")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading",
       {
-        name: /Demo Participation/,
+        level: 2,
+        name: "Participations",
       })
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("No participations available yet.")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByText("Demo Organization")
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByText("Demo Participation")
+    ).not.toBeInTheDocument();
   });
 });

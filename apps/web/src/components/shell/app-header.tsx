@@ -1,4 +1,5 @@
 import { AppearanceToggle } from "@/components/appearance/appearance-toggle";
+import { NotificationTrigger } from "@/components/notifications/notification-trigger";
 
 export function AppHeader()
 {
@@ -25,6 +26,7 @@ export function AppHeader()
         aria-label="Global controls"
         className="flex shrink-0 items-center gap-2"
       >
+        <NotificationTrigger />
         <AppearanceToggle />
       </div>
     </header>

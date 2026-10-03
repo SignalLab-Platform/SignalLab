@@ -119,6 +119,20 @@ Le **Header** contient uniquement des éléments globaux, notamment :
 - les paramètres utilisateur ;
 - le profil utilisateur.
 
+Les Notifications sont accessibles depuis une cloche située dans le Header.
+
+Lorsqu'au moins une Notification non lue existe, la cloche affiche un indicateur permettant au User d'identifier qu'un événement nécessite son attention.
+
+L'activation de la cloche ouvre une vue légère des Notifications récentes sans modifier le contexte métier courant.
+
+Cette vue permet notamment de :
+
+- distinguer les Notifications lues et non lues ;
+- identifier rapidement l'événement signalé ;
+- accéder à la cible métier d'une Notification lorsqu'elle existe.
+
+La consultation des Notifications depuis le Header reste disponible quel que soit le contexte courant.
+
 Le **Header** n'affiche jamais d'information spécifique au contexte courant.
 
 Son contenu reste identique lors de toute navigation.
@@ -234,6 +248,7 @@ La **Context Navigation** peut être initiée depuis différents endroits de l'a
 - un Explorer ;
 - une Workspace ;
 - la Global Search ;
+- une Notification ;
 - un flux de création ;
 - une URL ;
 - l'historique du navigateur.
@@ -1182,22 +1197,38 @@ Les Toasts ne constituent jamais un historique des événements.
 
 ## 11.4 Notifications
 
-Les **Notifications** informent l'utilisateur d'événements métier importants.
+Les **Notifications** informent le User d'événements métier importants nécessitant son attention ou pouvant nécessiter une consultation ultérieure.
 
 Elles sont :
 
 - persistantes ;
-- consultables depuis le Notification Center ;
-- indépendantes de la vue actuellement affichée.
+- associées au User destinataire ;
+- indépendantes de la vue actuellement affichée ;
+- accessibles globalement depuis la cloche du Header ;
+- distinguées entre lues et non lues.
 
-Une notification peut notamment signaler :
+Une Notification peut notamment signaler :
 
-- un changement d'état d'une ressource ;
-- une activité réalisée par un autre utilisateur ;
 - une invitation ;
+- un changement d'état pertinent d'une ressource ;
+- une activité réalisée par un autre User ;
 - une information nécessitant une consultation ultérieure.
 
-Les Notifications constituent un historique des événements importants destinés à l'utilisateur.
+L'ouverture de la cloche présente une vue légère des Notifications récentes.
+
+Lorsqu'une Notification possède une cible métier, son activation ouvre la ressource ou l'action concernée selon les règles normales de navigation de SignalLab.
+
+La Notification ne remplace jamais cette cible et n'en reproduit pas les règles métier.
+
+Son état de lecture indique uniquement si le User a pris connaissance de la Notification.
+
+La lecture d'une Notification ne vaut donc jamais acceptation, refus, traitement ou résolution de l'événement métier concerné.
+
+Les Notifications peuvent constituer un historique des événements importants destinés au User.
+
+Le MVP ne nécessite cependant pas un Notification Center complet ou un espace métier autonome consacré à cet historique.
+
+Si le volume ou les usages futurs le nécessitent, une vue étendue des Notifications pourra compléter l'accès léger du Header sans modifier leur responsabilité.
 
 ---
 

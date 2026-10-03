@@ -26,7 +26,7 @@ describe("ContextNavigation", () =>
     resetNavigationState();
   });
 
-  it("renders the canonical context destinations", () =>
+  it("renders empty resource sections on Personal Home", () =>
   {
     render(<ContextNavigation />);
 
@@ -38,44 +38,48 @@ describe("ContextNavigation", () =>
     ).toHaveAttribute("href", "/home");
 
     expect(
-      screen.getByRole("link",
+      screen.getByText("Workspaces")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("No workspaces yet.")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("My participations")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("No participations yet.")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("link",
       {
         name: "Demo Organization",
       })
-    ).toHaveAttribute(
-      "href",
-      "/organizations/demo-organization/all"
-    );
+    ).not.toBeInTheDocument();
 
     expect(
-      screen.getByRole("link",
+      screen.queryByRole("link",
       {
         name: "Demo Project",
       })
-    ).toHaveAttribute(
-      "href",
-      "/organizations/demo-organization/projects/demo-project/all"
-    );
+    ).not.toBeInTheDocument();
 
     expect(
-      screen.getByRole("link",
+      screen.queryByRole("link",
       {
         name: "Demo Campaign",
       })
-    ).toHaveAttribute(
-      "href",
-      "/organizations/demo-organization/projects/demo-project/campaigns/demo-campaign/overview"
-    );
+    ).not.toBeInTheDocument();
 
     expect(
-      screen.getByRole("link",
+      screen.queryByRole("link",
       {
         name: "Demo Participation",
       })
-    ).toHaveAttribute(
-      "href",
-      "/participations/demo-participation/overview"
-    );
+    ).not.toBeInTheDocument();
   });
 
   it("identifies the current Campaign and its contextual ancestors", () =>
@@ -147,6 +151,10 @@ describe("ContextNavigation", () =>
 
   it("reopens each resource on its last valid local view", () =>
   {
+    mockedUsePathname.mockReturnValue(
+      "/organizations/demo-organization/projects/demo-project/campaigns/demo-campaign/overview"
+    );
+
     updateNavigationResourceState(
       "organization:demo-organization",
       {
