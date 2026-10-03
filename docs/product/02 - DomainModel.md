@@ -209,6 +209,7 @@ Ces responsabilités ne doivent jamais être fusionnées.
 SignalLab
 │
 ├── Users
+│   └── Notifications
 ├── MAP
 │
 └── Organizations
@@ -343,7 +344,8 @@ User
 ├── ParticipantProfile
 ├── MAPAssessments
 ├── MAPProfile
-└── OrganizationMember
+├── OrganizationMember
+└── Notifications
 
 ParticipantProfile
 └── CampaignParticipation
@@ -404,7 +406,8 @@ Un User peut posséder :
 - plusieurs MAPAssessments ;
 - un MAPProfile actuel ;
 - plusieurs OrganizationMembers ;
-- plusieurs OrganizationInvitations reçues.
+- plusieurs OrganizationInvitations reçues ;
+- plusieurs Notifications reçues.
 
 ---
 
@@ -435,6 +438,85 @@ L'identifiant externe permet de retrouver de manière stable le même User lors 
 L'Email initial du User est résolu depuis son identité externe et reste unique à l'échelle de SignalLab.
 
 La gestion et la synchronisation ultérieure des informations personnelles du User relèvent du cycle de vie de son profil.
+
+---
+
+## Notification
+
+### Description
+
+Une Notification représente un événement métier porté à l'attention d'un User dans SignalLab.
+
+Elle appartient au User destinataire indépendamment du contexte métier ayant produit l'événement.
+
+Une Notification permet au User d'identifier qu'un événement pertinent s'est produit et d'accéder à la ressource ou à l'action concernée.
+
+Elle ne remplace jamais l'entité métier à l'origine de l'événement et n'en constitue jamais la source de vérité.
+
+---
+
+### Responsabilités
+
+Une Notification est responsable de :
+
+- identifier son User destinataire ;
+- identifier la nature de l'événement signalé ;
+- permettre l'accès à sa cible métier lorsqu'une cible existe ;
+- conserver son état de lecture ;
+- conserver la date à laquelle elle a été créée.
+
+---
+
+### Principales propriétés
+
+- NotificationId
+- RecipientUserId
+- Type
+- Target
+- CreatedAt
+- ReadAt
+
+`ReadAt` est facultatif.
+
+Son absence indique que la Notification n'a pas encore été lue.
+
+---
+
+### Cible métier
+
+Une Notification peut référencer une cible métier permettant au User d'accéder au contexte ou à l'action concernée.
+
+Cette référence ne duplique pas l'état métier de la cible.
+
+La disparition, l'expiration ou le changement d'état de la cible ne réécrit pas l'événement historique représenté par la Notification.
+
+La disponibilité des actions reste déterminée par l'état actuel de l'entité métier concernée.
+
+---
+
+### Relations
+
+Une Notification appartient à un seul User destinataire.
+
+Un User peut recevoir plusieurs Notifications.
+
+Une Notification peut référencer une ressource métier appartenant à un autre contexte du produit.
+
+---
+
+### Invariants
+
+Une Notification possède exactement un User destinataire.
+
+Une Notification ne constitue jamais une source de vérité pour l'état de l'entité métier qu'elle référence.
+
+La lecture d'une Notification ne modifie pas l'entité métier à l'origine de l'événement.
+
+Une Notification non lue possède `ReadAt = null`.
+
+Lorsqu'une Notification est marquée comme lue, `ReadAt` représente la date de cette lecture.
+
+Une Notification déjà lue peut être consultée à nouveau sans modifier son événement métier d'origine.
 
 ---
 
@@ -1159,6 +1241,12 @@ Elle est créée par un OrganizationMember disposant de la Permission nécessair
 ---
 
 ### Invariants
+
+La création d'une OrganizationInvitation génère une Notification destinée au User invité.
+
+Cette Notification permet au User d'accéder à l'OrganizationInvitation mais ne porte ni son statut ni ses règles métier.
+
+L'OrganizationInvitation reste l'unique source de vérité concernant la validité, le statut, l'expiration et l'acceptation de l'invitation.
 
 Une OrganizationInvitation ne peut pas cibler un User possédant déjà un OrganizationMember `Active` dans l'Organization.
 

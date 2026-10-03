@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
+import { useCurrentUser } from "@/features/current-user/use-current-user";
+
 import { NavigationPresentation } from "@/components/navigation/navigation-presentation";
 import { resolveNavigationLocation } from "@/navigation/navigation-resolver";
 
@@ -39,11 +41,24 @@ jest.mock("next/navigation", () =>
   };
 });
 
+jest.mock("@/features/current-user/use-current-user");
+
 describe("NavigationPresentation", () =>
 {
   beforeEach(() =>
   {
     resetNavigationState();
+
+    jest.mocked(useCurrentUser).mockReturnValue(
+    {
+      data:
+      {
+        id: "7e34f695-46df-4c29-9852-030783798531",
+        email: "user@example.com",
+      },
+      isPending: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useCurrentUser>);
   });
 
   it("renders an Explorer with Search, tabs, actions, and resources", () =>

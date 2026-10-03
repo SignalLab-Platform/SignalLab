@@ -188,7 +188,7 @@ Le MVP n'inclut pas :
 - export CSV (hors produit) ;
 - export Excel (hors produit) ;
 - API publique ;
-- notifications ;
+- notifications push, email et temps réel ;
 - système de commentaires ;
 - chat (hors produit) ;
 - collaboration temps réel ;
@@ -819,12 +819,13 @@ SignalLab devient un espace collaboratif multi-tenant dont l’isolation, la pro
 - OrganizationInvitation
 - Role
 - Permission Catalogue
+- Notification
 
 # Hors scope
 
 - Projects
 - Participation aux Campaigns
-- Notifications push
+- Notifications push, email et temps réel
 - Roles personnalisés
 - Plusieurs Roles par membre
 - OrganizationActivityEntry
@@ -836,6 +837,8 @@ SignalLab devient un espace collaboratif multi-tenant dont l’isolation, la pro
 - Chaque OrganizationMember possède exactement un Role système actif.
 - Les cas d’usage vérifient des Permissions et jamais directement le nom du Role.
 - Une OrganizationInvitation précède le Membership et ne donne aucun accès.
+- Les événements métier nécessitant l'attention du User peuvent produire une Notification in-app persistante.
+- Une Notification fournit un accès à sa cible métier sans en devenir la source de vérité.
 - Un OrganizationMember possède le cycle Active ⇄ Removed et conserve son identité lors d'une réactivation.
 - Le sélecteur d’Organization appartient à la Sidebar.
 
@@ -913,13 +916,14 @@ Créer le User métier global et sa liaison technique au fournisseur d’identit
 
 ### Description
 
-Créer le contexte personnel affichant Organizations, invitations reçues et accès au profil.
+Créer le contexte personnel affichant les ressources et activités personnelles pertinentes du User, notamment ses Organizations, ses Participations et l'accès à son profil.
 
 ### Critères d'acceptation
 
 - Le Hub est le contexte après connexion.
 - Seules les ressources accessibles sont affichées.
-- Le Shell reste inchangé.
+- Le Shell conserve sa structure globale et peut être enrichi par les données métier disponibles du User.
+- L'emplacement global des Notifications dans le Header est réservé sans implémenter prématurément leur domaine métier.
 
 ### Definition of Done
 
@@ -1020,24 +1024,36 @@ Matérialiser l’appartenance User–Organization et son Role actif.
 
 ---
 
-## SL-031 — Implémenter OrganizationInvitation
+## SL-031 — Implémenter les Notifications et OrganizationInvitation
 
 ### Description
 
-Implémenter le cycle Pending, Accepted, Declined, Cancelled et Expired.
+Implémenter le socle des Notifications in-app persistantes et utiliser OrganizationInvitation comme premier événement métier produisant une Notification.
+
+Implémenter le cycle Pending, Accepted, Declined, Cancelled et Expired de l'OrganizationInvitation.
 
 ### Critères d'acceptation
 
+- Une Notification appartient à un User destinataire.
+- Les Notifications sont persistées.
+- Les Notifications lues et non lues sont distinguées.
+- Le User peut consulter ses Notifications récentes depuis la cloche du Header.
+- Le Header indique la présence de Notifications non lues.
+- Une Notification possédant une cible métier permet d'accéder à cette cible.
+- La lecture d'une Notification ne modifie jamais l'état de sa cible métier.
 - Invitation nominative vers un User existant.
 - Une seule invitation Pending par paire Organization–User.
+- La création d'une OrganizationInvitation produit une Notification destinée au User invité.
+- La Notification permet d'accéder à l'OrganizationInvitation sans en dupliquer l'état métier.
 - Acceptation atomique avec création d'un OrganizationMember ou réactivation du Membership Removed existant.
 - Le Role porté par l'invitation devient le Role actif du Membership créé ou réactivé.
 - Une invitation terminale est inutilisable.
-- Les invitations restent consultables sans système de notifications MVP.
+- Une OrganizationInvitation reste consultable indépendamment de la Notification qui l'a signalée.
+- Aucun mécanisme de notification push, email ou temps réel n'est requis.
 
 ### Definition of Done
 
-- Implémenter OrganizationInvitation validé par les tests et la documentation.
+- Implémenter Notification et OrganizationInvitation validé par les tests et la documentation.
 
 ---
 

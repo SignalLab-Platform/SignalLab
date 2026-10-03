@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SignalLab.Api.Authentication;
-using SignalLab.Infrastructure;
 using SignalLab.Api.Configuration;
+using SignalLab.Api.Users;
+using SignalLab.Infrastructure;
 using SignalLab.Application;
 using SignalLab.Application.Users;
 
@@ -59,11 +60,10 @@ app.MapGet(
             externalUserId,
             cancellationToken);
 
-        return Results.Ok(new
-        {
-            UserId = user.Id.Value,
-            user.Email,
-        });
+        return Results.Ok(
+            new CurrentUserResponse(
+                user.Id.Value,
+                user.Email));
     })
     .RequireAuthorization()
     .WithName("GetAuthenticationSession");

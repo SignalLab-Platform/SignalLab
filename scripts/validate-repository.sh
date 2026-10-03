@@ -23,15 +23,12 @@ required_directories=(
     "apps/api/tests/SignalLab.Architecture.Tests"
 
     "apps/web"
-    "apps/web/public"
     "apps/web/src"
     "apps/web/src/app"
     "apps/web/src/components"
     "apps/web/src/components/ui"
     "apps/web/src/lib"
     "apps/web/src/providers"
-
-    "infrastructure"
 
     "docs"
     "docs/milestones"

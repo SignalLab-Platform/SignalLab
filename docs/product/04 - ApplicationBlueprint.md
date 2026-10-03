@@ -44,6 +44,14 @@ L'application repose sur trois régions ayant chacune une responsabilité bien d
 
 Cette structure est identique dans toute l'application.
 
+Le **Header** expose les contrôles transversaux qui restent accessibles indépendamment du contexte courant.
+
+Il comprend notamment l'accès global aux Notifications du User.
+
+La cloche de Notifications permet de consulter rapidement les événements récents nécessitant son attention et d'accéder à leur cible métier lorsqu'elle existe.
+
+Les Notifications ne constituent pas un niveau supplémentaire dans la hiérarchie des contextes.
+
 ---
 
 # 2. Hiérarchie des contextes
@@ -406,6 +414,9 @@ Le schéma suivant résume la philosophie générale de l'application.
 SignalLab
 │
 ├── Header
+│      │
+│      ├── Notifications
+│      └── User Controls
 │
 ├── Sidebar
 │      │

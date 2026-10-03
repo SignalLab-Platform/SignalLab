@@ -257,6 +257,7 @@ export function ContextNavigation()
   const pathname = usePathname();
   const location = resolveNavigationLocation(pathname);
   const navigationState = useNavigationState();
+  const isPersonalHome = location?.contextKind === "home";
 
   const organization = DEMO_NAVIGATION_DATA.organization;
   const project = DEMO_NAVIGATION_DATA.project;
@@ -374,13 +375,22 @@ export function ContextNavigation()
           Workspaces
         </p>
 
-        {workspaceItems.map((item) =>
-        {
-          return renderContextNavigationItem(
-            item,
-            location
-          );
-        })}
+        {isPersonalHome
+          ? (
+              <p
+                data-sidebar-expanded-only
+                className="px-3 py-2 text-xs text-muted-foreground"
+              >
+                No workspaces yet.
+              </p>
+            )
+          : workspaceItems.map((item) =>
+            {
+              return renderContextNavigationItem(
+                item,
+                location
+              );
+            })}
       </div>
 
       <div className="mt-3 space-y-1 border-t border-sidebar-border pt-3">
@@ -391,10 +401,19 @@ export function ContextNavigation()
           My participations
         </p>
 
-        {renderContextNavigationItem(
-          participationItem,
-          location
-        )}
+        {isPersonalHome
+          ? (
+              <p
+                data-sidebar-expanded-only
+                className="px-3 py-2 text-xs text-muted-foreground"
+              >
+                No participations yet.
+              </p>
+            )
+          : renderContextNavigationItem(
+              participationItem,
+              location
+            )}
       </div>
     </nav>
   );

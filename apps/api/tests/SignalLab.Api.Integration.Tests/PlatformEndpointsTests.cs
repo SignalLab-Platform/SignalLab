@@ -98,7 +98,7 @@ public sealed class PlatformEndpointsTests : IClassFixture<SignalLabApiFactory>,
         using var document = JsonDocument.Parse(content);
 
         var userId = document.RootElement
-            .GetProperty("userId")
+            .GetProperty("id")
             .GetGuid();
 
         var email = document.RootElement
@@ -122,7 +122,7 @@ public sealed class PlatformEndpointsTests : IClassFixture<SignalLabApiFactory>,
             JsonDocument.Parse(secondContent);
 
         var secondUserId = secondDocument.RootElement
-            .GetProperty("userId")
+            .GetProperty("id")
             .GetGuid();
 
         var secondEmail = secondDocument.RootElement

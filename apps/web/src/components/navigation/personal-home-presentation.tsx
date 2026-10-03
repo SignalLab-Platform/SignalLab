@@ -1,3 +1,5 @@
+"use client";
+
 import
 {
   Building2,
@@ -5,92 +7,148 @@ import
   UserRound,
 } from "lucide-react";
 
-import Link from "next/link";
-
-import { DEMO_NAVIGATION_DATA } from "@/navigation/demo-navigation-data";
-
-import
-{
-  buildOrganizationRoute,
-  buildParticipationRoute,
-} from "@/navigation/navigation-routes";
+import { useCurrentUser } from "@/features/current-user/use-current-user";
 
 export function PersonalHomePresentation()
 {
-  return (
-    <section className="mx-auto flex min-h-full w-full max-w-5xl flex-col justify-center gap-8 px-8 py-12">
-      <div className="max-w-2xl">
-        <p className="text-sm font-medium text-primary">
-          Personal space
-        </p>
+  const currentUserQuery = useCurrentUser();
 
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+  if (currentUserQuery.isPending)
+  {
+    return (
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
+        <div className="space-y-2">
+          <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
+          <div className="h-5 w-72 animate-pulse rounded-md bg-muted" />
+        </div>
+
+        <div className="h-28 animate-pulse rounded-xl border bg-card" />
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="h-40 animate-pulse rounded-xl border bg-card" />
+          <div className="h-40 animate-pulse rounded-xl border bg-card" />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentUserQuery.isError)
+  {
+    return (
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-6 py-8">
+        <h1 className="text-2xl font-semibold tracking-tight">
           Personal Home
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-muted-foreground">
-          Choose the context in which you want to work.
-        </p>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Link
-          href={buildOrganizationRoute(
-            DEMO_NAVIGATION_DATA.organization.id,
-            "all"
-          )}
-          className="rounded-xl border bg-card p-5 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <Building2
-            aria-hidden="true"
-            className="size-5 text-primary"
-          />
-
-          <h2 className="mt-4 font-semibold">
-            {DEMO_NAVIGATION_DATA.organization.label}
-          </h2>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            Open the Organization Explorer.
+        <div className="rounded-xl border border-destructive/40 bg-card p-5">
+          <p className="font-medium">
+            We couldn&apos;t load your SignalLab profile.
           </p>
-        </Link>
 
-        <Link
-          href={buildParticipationRoute(
-            DEMO_NAVIGATION_DATA.participation.id,
-            "overview"
-          )}
-          className="rounded-xl border bg-card p-5 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <ClipboardList
-            aria-hidden="true"
-            className="size-5 text-primary"
-          />
-
-          <h2 className="mt-4 font-semibold">
-            {DEMO_NAVIGATION_DATA.participation.label}
-          </h2>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            Open the Participation Document.
-          </p>
-        </Link>
-
-        <div className="rounded-xl border border-dashed bg-card p-5 text-card-foreground">
-          <UserRound
-            aria-hidden="true"
-            className="size-5 text-muted-foreground"
-          />
-
-          <h2 className="mt-4 font-semibold">
-            MAP Profile
-          </h2>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            This personal resource will be introduced in M10.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Refresh the page to try again.
           </p>
         </div>
       </div>
-    </section>
+    );
+  }
+
+  const currentUser = currentUserQuery.data;
+
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-8">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Personal Home
+        </h1>
+
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your personal SignalLab workspace.
+        </p>
+      </header>
+
+      <section
+        aria-labelledby="profile-heading"
+        className="rounded-xl border bg-card p-5"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <UserRound
+              aria-hidden="true"
+              className="size-5"
+            />
+          </div>
+
+          <div className="min-w-0">
+            <h2
+              id="profile-heading"
+              className="font-medium"
+            >
+              Your profile
+            </h2>
+
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {currentUser.email}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section
+          aria-labelledby="organizations-heading"
+          className="rounded-xl border bg-card p-5"
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+              <Building2
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+
+            <div>
+              <h2
+                id="organizations-heading"
+                className="font-medium"
+              >
+                Organizations
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                No organizations available yet.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="participations-heading"
+          className="rounded-xl border bg-card p-5"
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+              <ClipboardList
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+
+            <div>
+              <h2
+                id="participations-heading"
+                className="font-medium"
+              >
+                Participations
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                No participations available yet.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }

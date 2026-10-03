@@ -51,13 +51,6 @@ describe("AppSidebar", () =>
         name: "Home",
       })
     ).toHaveAttribute("aria-current", "location");
-
-    expect(
-      screen.getByRole("link",
-      {
-        name: "Demo Organization",
-      })
-    ).toBeInTheDocument();
   });
 
   it("collapses the sidebar and persists the choice", () =>

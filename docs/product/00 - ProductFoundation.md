@@ -115,6 +115,20 @@ Les projections sont préférées aux copies.
 
 ---
 
+## Les événements importants doivent atteindre l'utilisateur
+
+SignalLab doit rendre visibles les événements métier qui nécessitent l'attention d'un utilisateur sans l'obliger à parcourir chaque contexte du produit.
+
+Les notifications in-app constituent un accès transversal à ces événements.
+
+Une notification ne remplace jamais l'entité métier qui l'a produite et n'en devient jamais la source de vérité.
+
+Elle permet à l'utilisateur de comprendre qu'un événement pertinent s'est produit et d'accéder au contexte ou à l'action concernée.
+
+Les mécanismes de diffusion externes ou temps réel ne sont pas nécessaires à ce principe.
+
+---
+
 ## Les analytics sont construits sur les données métier
 
 Les écrans analytiques ne créent aucune donnée.

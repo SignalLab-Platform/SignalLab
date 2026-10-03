@@ -268,7 +268,9 @@ PostgreSQL + Domain Metadata
 
 Calculated Projection
 
-Les capacités temps réel futures pourront ajouter SignalR lorsque les notifications ou ResearchBoards seront effectivement implémentés.
+Les Notifications du MVP utilisent le même flux HTTP, REST et PostgreSQL que les autres données métier.
+
+Les capacités temps réel futures pourront ajouter SignalR lorsque la livraison immédiate d'événements aux clients connectés ou les fonctionnalités collaboratives comme les ResearchBoards le justifieront.
 
 ---
 
@@ -436,7 +438,7 @@ Il est responsable :
 - de l'authentification des utilisateurs ;
 - de l'autorisation des opérations ;
 - de l'exécution des cas d'usage ;
-- de la communication temps réel via SignalR ;
+- de la communication temps réel via SignalR lorsqu'une Milestone dédiée introduira cette capacité ;
 - de la journalisation ;
 - de la gestion centralisée des erreurs.
 
@@ -485,7 +487,7 @@ Elle contient notamment :
 
 - les Controllers ;
 - les Endpoints HTTP ;
-- les Hubs SignalR ;
+- les Hubs SignalR lorsque les capacités temps réel seront introduites ;
 - les Middlewares ;
 - la validation technique des requêtes ;
 - la sérialisation des réponses.
@@ -970,22 +972,65 @@ Les résultats numériques sont comparés avec des tolérances explicitement dé
 
 ---
 
-# 11. Temps réel — capacité post-MVP
+# 11. Notifications
 
-## 11.1 Statut
+## 11.1 Persistance
+
+Les Notifications sont des données métier persistantes appartenant au User destinataire.
+
+PostgreSQL constitue leur source de vérité.
+
+Leur création, leur consultation et la modification de leur état de lecture transitent par les mêmes couches Domain, Application, Infrastructure et Presentation que les autres fonctionnalités métier.
+
+Le frontend ne constitue jamais la source de vérité de l'état lu ou non lu d'une Notification.
+
+---
+
+## 11.2 Accès depuis le frontend
+
+Le frontend accède aux Notifications au travers de l'API REST.
+
+TanStack Query gère leur Server State côté client.
+
+Le MVP peut rafraîchir les Notifications lors d'événements raisonnables de l'interface, notamment :
+
+- lors du chargement de l'application ;
+- lors de l'ouverture de l'accès aux Notifications ;
+- après une opération susceptible d'en modifier l'état ;
+- au moyen d'un rafraîchissement automatique raisonnable lorsque cela améliore l'expérience utilisateur.
+
+Le fonctionnement des Notifications ne dépend pas d'une connexion persistante entre le frontend et le backend.
+
+---
+
+## 11.3 Évolution temps réel
+
+La persistance des Notifications et leur livraison temps réel sont deux responsabilités distinctes.
+
+Une évolution future pourra utiliser SignalR pour informer immédiatement un client connecté qu'une Notification nouvelle ou modifiée est disponible.
+
+SignalR ne deviendra pas pour autant la source de vérité des Notifications.
+
+Lorsqu'un événement temps réel est reçu, le frontend récupère ou invalide la projection canonique gérée par TanStack Query et exposée par l'API.
+
+---
+
+# 12. Temps réel — capacité post-MVP
+
+## 12.1 Statut
 
 Le MVP n'installe ni n'exploite SignalR.
 
-Les parcours MVP reposent sur HTTP, TanStack Query et des rafraîchissements explicites ou automatiques raisonnables.
+Les fonctionnalités métier nécessitant une actualisation côté client, notamment les Notifications, reposent sur HTTP, TanStack Query et des rafraîchissements explicites ou automatiques raisonnables.
 
 SignalR reste le choix technique privilégié lorsque des fonctionnalités justifient réellement des connexions persistantes, notamment :
 
-- notifications en temps réel ;
-- présence collaborative ;
-- ResearchBoards partagés ;
-- invalidation immédiate entre plusieurs clients actifs.
+- la livraison en temps réel des Notifications ;
+- la présence collaborative ;
+- les ResearchBoards partagés ;
+- l'invalidation immédiate entre plusieurs clients actifs.
 
-## 11.2 Principes futurs
+## 12.2 Principes futurs
 
 SignalR ne remplacera jamais REST ni PostgreSQL.
 
@@ -997,9 +1042,9 @@ L'introduction de SignalR nécessitera une ADR et une Milestone dédiées couvra
 
 ---
 
-# 12. Observabilité
+# 13. Observabilité
 
-## 12.1 Objectifs
+## 13.1 Objectifs
 
 L'observabilité permet de comprendre le comportement du système en développement comme en production.
 
@@ -1013,7 +1058,7 @@ SignalLab adopte une approche fondée sur les standards afin de conserver une in
 
 ---
 
-## 12.2 Journalisation
+## 13.2 Journalisation
 
 SignalLab utilise Serilog comme système de journalisation.
 
@@ -1039,7 +1084,7 @@ Cela inclut notamment :
 
 ---
 
-## 12.3 Traces distribuées
+## 13.3 Traces distribuées
 
 SignalLab utilise OpenTelemetry afin de produire des traces standardisées.
 
@@ -1058,7 +1103,7 @@ Cette approche facilite l'identification des problèmes de performance ainsi que
 
 ---
 
-## 12.4 Corrélation
+## 13.4 Corrélation
 
 Chaque opération importante doit pouvoir être retrouvée grâce à un identifiant de corrélation.
 
@@ -1072,9 +1117,9 @@ L'objectif est de faciliter l'analyse d'un problème sans exposer de données se
 
 ---
 
-# 13. Gestion des erreurs
+# 14. Gestion des erreurs
 
-## 13.1 Principes
+## 14.1 Principes
 
 La gestion des erreurs est centralisée.
 
@@ -1091,7 +1136,7 @@ Les principales catégories sont :
 
 ---
 
-## 13.2 Réponses HTTP
+## 14.2 Réponses HTTP
 
 Les erreurs sont retournées sous une forme structurée.
 
@@ -1103,7 +1148,7 @@ Les détails techniques restent enregistrés côté serveur.
 
 ---
 
-## 13.3 Exceptions
+## 14.3 Exceptions
 
 Les exceptions inattendues ne doivent jamais être exposées directement aux utilisateurs.
 
@@ -1119,9 +1164,9 @@ Ces informations sont uniquement conservées dans les systèmes de journalisatio
 
 ---
 
-# 14. Sécurité
+# 15. Sécurité
 
-## 14.1 Principes
+## 15.1 Principes
 
 La sécurité constitue une préoccupation permanente du projet.
 
@@ -1136,7 +1181,7 @@ Sans viser les contraintes d'une très grande plateforme dès le MVP, SignalLab 
 
 ---
 
-## 14.2 Secrets
+## 15.2 Secrets
 
 Aucun secret ne doit être présent dans le dépôt Git.
 
@@ -1152,7 +1197,7 @@ Les secrets sont fournis par l'environnement d'exécution.
 
 ---
 
-## 14.3 Protection des données
+## 15.3 Protection des données
 
 Les données manipulées par SignalLab peuvent représenter des informations sensibles appartenant à ses utilisateurs.
 
@@ -1169,9 +1214,9 @@ Ces principes constituent les fondations de la stratégie de sécurité du proje
 
 ---
 
-# 15. Tests
+# 16. Tests
 
-## 15.1 Objectifs
+## 16.1 Objectifs
 
 Les tests ont pour objectif de garantir la stabilité du système tout au long de son évolution.
 
@@ -1184,7 +1229,7 @@ Ils permettent notamment de vérifier :
 
 ---
 
-## 15.2 Tests unitaires
+## 16.2 Tests unitaires
 
 Les tests unitaires concernent principalement le Domain.
 
@@ -1198,7 +1243,7 @@ Ces tests doivent être :
 
 ---
 
-## 15.3 Tests d'intégration
+## 16.3 Tests d'intégration
 
 Les tests d'intégration vérifient le bon fonctionnement des interactions entre plusieurs composants.
 
@@ -1212,7 +1257,7 @@ Ils concernent notamment :
 
 ---
 
-## 15.4 Tests Frontend
+## 16.4 Tests Frontend
 
 Le frontend est testé selon la valeur métier des fonctionnalités développées.
 
@@ -1227,7 +1272,7 @@ L'objectif n'est pas d'atteindre un taux arbitraire de couverture mais de sécur
 
 ---
 
-# 16. Documentation de l'API
+# 17. Documentation de l'API
 
 L'API expose une documentation OpenAPI.
 
@@ -1243,9 +1288,9 @@ La génération automatique des contrats à partir d'OpenAPI pourra être réév
 
 ---
 
-# 17. Déploiement
+# 18. Déploiement
 
-## 17.1 Docker
+## 18.1 Docker
 
 SignalLab utilise Docker afin de garantir un environnement reproductible.
 
@@ -1263,7 +1308,7 @@ Cette approche permet d'obtenir un environnement cohérent entre :
 
 ---
 
-## 17.2 Environnements
+## 18.2 Environnements
 
 Le projet distingue actuellement deux environnements :
 
@@ -1274,7 +1319,7 @@ Un environnement Staging pourra être introduit lorsque le projet accueillera de
 
 ---
 
-## 17.3 Hébergement
+## 18.3 Hébergement
 
 Le fournisseur d'hébergement n'est pas encore définitivement retenu.
 
@@ -1290,7 +1335,7 @@ L'architecture ne dépend volontairement d'aucun fournisseur spécifique.
 
 ---
 
-# 18. Intégration continue
+# 19. Intégration continue
 
 SignalLab utilise GitHub Actions afin d'automatiser les principales étapes de validation.
 
@@ -1305,7 +1350,7 @@ L'objectif est de garantir qu'une modification ne dégrade pas l'état du projet
 
 ---
 
-# 19. Performance et évolutivité
+# 20. Performance et évolutivité
 
 Le MVP privilégie une architecture simple et robuste.
 
@@ -1324,7 +1369,7 @@ Des technologies telles que Redis pourront être introduites si les besoins évo
 
 ---
 
-# 20. Traitements en arrière-plan
+# 21. Traitements en arrière-plan
 
 Le MVP n'introduit pas immédiatement de système spécialisé de Background Jobs.
 
@@ -1344,7 +1389,7 @@ L'ajout d'un job ne modifiera pas le Domain Model : les résultats resteront des
 
 ---
 
-# 21. Technologies non retenues
+# 22. Technologies non retenues
 
 Certaines technologies ont volontairement été écartées de la première version du projet.
 
@@ -1363,7 +1408,7 @@ Chaque technologie pourra être réévaluée lorsqu'un besoin concret apparaîtr
 
 ---
 
-# 22. Décisions techniques
+# 23. Décisions techniques
 
 ## Frontend
 
@@ -1416,7 +1461,7 @@ Chaque technologie pourra être réévaluée lorsqu'un besoin concret apparaîtr
 
 ---
 
-# 23. Conclusion
+# 24. Conclusion
 
 SignalLab adopte une architecture moderne, modulaire et volontairement pragmatique.
 
