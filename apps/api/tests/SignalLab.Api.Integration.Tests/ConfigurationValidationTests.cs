@@ -101,13 +101,21 @@ public sealed class ConfigurationValidationTests
     }
 
     [Fact]
-    public void Infrastructure_ValidPostgresConnectionString_ShouldSucceed()
+    public void Infrastructure_ValidConfiguration_ShouldSucceed()
     {
         var configuration = CreateConfiguration(
             postgresConnectionString:
                 "Host=localhost;Port=5432;Database=signallab;Username=signallab;Password=test",
             clerkSecretKey:
-                "sk_test_not-a-real-secret");
+                "sk_test_not-a-real-secret",
+            objectStorageEndpoint:
+                "https://example.r2.cloudflarestorage.com",
+            objectStorageBucketName:
+                "signallab-test",
+            objectStorageAccessKeyId:
+                "test-access-key-id",
+            objectStorageSecretAccessKey:
+                "test-secret-access-key");
 
         var services = new ServiceCollection();
 
@@ -253,23 +261,76 @@ public sealed class ConfigurationValidationTests
         services.AddSignalLabCors(configuration);
     }
 
+    [Theory]
+    [InlineData(
+        "ObjectStorage:Endpoint",
+        "Required configuration 'ObjectStorage:Endpoint' is missing or empty.")]
+    [InlineData(
+        "ObjectStorage:BucketName",
+        "Required configuration 'ObjectStorage:BucketName' is missing or empty.")]
+    [InlineData(
+        "ObjectStorage:AccessKeyId",
+        "Required configuration 'ObjectStorage:AccessKeyId' is missing or empty.")]
+    [InlineData(
+        "ObjectStorage:SecretAccessKey",
+        "Required configuration 'ObjectStorage:SecretAccessKey' is missing or empty.")]
+    public void Infrastructure_MissingObjectStorageConfiguration_ShouldFail(
+        string missingKey,
+        string expectedMessage)
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Postgres"] =
+                "Host=localhost;Port=5432;Database=signallab;Username=signallab;Password=test",
+            ["Authentication:Clerk:SecretKey"] =
+                "sk_test_not-a-real-secret",
+            ["ObjectStorage:Endpoint"] =
+                "https://example.r2.cloudflarestorage.com",
+            ["ObjectStorage:BucketName"] =
+                "signallab-test",
+            ["ObjectStorage:AccessKeyId"] =
+                "test-access-key-id",
+            ["ObjectStorage:SecretAccessKey"] =
+                "test-secret-access-key",
+        };
+
+        values.Remove(missingKey);
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(values)
+            .Build();
+
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            services.AddInfrastructure(configuration));
+
+        Assert.Equal(expectedMessage, exception.Message);
+    }
+
     private static IConfiguration CreateConfiguration(
         string? postgresConnectionString = null,
         string? clerkIssuer = null,
         string? clerkAuthorizedParty = null,
         string? clerkSecretKey = null,
-        string? corsAllowedOrigin = null)
+        string? corsAllowedOrigin = null,
+        string? objectStorageEndpoint = null,
+        string? objectStorageBucketName = null,
+        string? objectStorageAccessKeyId = null,
+        string? objectStorageSecretAccessKey = null)
     {
         var values = new Dictionary<string, string?>();
 
         if (postgresConnectionString is not null)
         {
-            values["ConnectionStrings:Postgres"] = postgresConnectionString;
+            values["ConnectionStrings:Postgres"] =
+                postgresConnectionString;
         }
 
         if (clerkIssuer is not null)
         {
-            values["Authentication:Clerk:Issuer"] = clerkIssuer;
+            values["Authentication:Clerk:Issuer"] =
+                clerkIssuer;
         }
 
         if (clerkAuthorizedParty is not null)
@@ -280,12 +341,38 @@ public sealed class ConfigurationValidationTests
 
         if (clerkSecretKey is not null)
         {
-            values["Authentication:Clerk:SecretKey"] = clerkSecretKey;
+            values["Authentication:Clerk:SecretKey"] =
+                clerkSecretKey;
         }
 
         if (corsAllowedOrigin is not null)
         {
-            values["Cors:AllowedOrigins:0"] = corsAllowedOrigin;
+            values["Cors:AllowedOrigins:0"] =
+                corsAllowedOrigin;
+        }
+
+        if (objectStorageEndpoint is not null)
+        {
+            values["ObjectStorage:Endpoint"] =
+                objectStorageEndpoint;
+        }
+
+        if (objectStorageBucketName is not null)
+        {
+            values["ObjectStorage:BucketName"] =
+                objectStorageBucketName;
+        }
+
+        if (objectStorageAccessKeyId is not null)
+        {
+            values["ObjectStorage:AccessKeyId"] =
+                objectStorageAccessKeyId;
+        }
+
+        if (objectStorageSecretAccessKey is not null)
+        {
+            values["ObjectStorage:SecretAccessKey"] =
+                objectStorageSecretAccessKey;
         }
 
         return new ConfigurationBuilder()

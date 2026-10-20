@@ -45,3 +45,65 @@ export async function apiGet(
 
   return response;
 }
+
+export async function apiPatch(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions,
+)
+{
+  const response = await fetch(
+    `${getApiUrl()}${path}`,
+    {
+      method: "PATCH",
+      headers:
+      {
+        Authorization: `Bearer ${options.token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: options.signal,
+    },
+  );
+
+  if (!response.ok)
+  {
+    throw new Error(
+      `SignalLab API request failed with status ${response.status}.`,
+    );
+  }
+
+  return response;
+}
+
+export async function apiPost(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions,
+)
+{
+  const response = await fetch(
+    `${getApiUrl()}${path}`,
+    {
+      method: "POST",
+      headers:
+      {
+        Authorization: `Bearer ${options.token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: options.signal,
+    },
+  );
+
+  if (!response.ok)
+  {
+    throw new Error(
+      `SignalLab API request failed with status ${response.status}.`,
+    );
+  }
+
+  return response;
+}

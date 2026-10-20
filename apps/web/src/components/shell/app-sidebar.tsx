@@ -10,7 +10,6 @@ import { useState } from "react";
 
 import { ContextNavigation } from "@/components/navigation/context-navigation";
 
-import { UserMenu } from "@/components/identity/user-menu";
 
 import
 {
@@ -83,9 +82,6 @@ export function AppSidebar()
           <ContextNavigation />
         </div>
 
-        <div className="shrink-0 border-t border-sidebar-border p-2">
-          <UserMenu />
-        </div>
       </div>
     </aside>
   );

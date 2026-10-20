@@ -90,6 +90,16 @@ public sealed class ResolveCurrentUserTests
             this.user = user;
         }
 
+        public Task<User?> GetByIdAsync(
+            UserId userId,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                user?.Id == userId
+                    ? user
+                    : null);
+        }
+
         public Task<User?> GetByExternalIdentityIdAsync(
             string externalIdentityId,
             CancellationToken cancellationToken)
@@ -98,6 +108,13 @@ public sealed class ResolveCurrentUserTests
                 user?.ExternalIdentityId == externalIdentityId
                     ? user
                     : null);
+        }
+
+        public Task<User?> GetByEmailAsync(
+            string email,
+            CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
         }
 
         public void Add(User user)

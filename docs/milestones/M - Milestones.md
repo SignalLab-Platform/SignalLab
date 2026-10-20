@@ -914,6 +914,8 @@ Créer le User métier global et sa liaison technique au fournisseur d’identit
 
 ## SL-025 — Créer le Personal Hub
 
+**Statut :** ✅ Validée
+
 ### Description
 
 Créer le contexte personnel affichant les ressources et activités personnelles pertinentes du User, notamment ses Organizations, ses Participations et l'accès à son profil.
@@ -939,7 +941,7 @@ Permettre la modification des informations personnelles et préférences globale
 
 ### Critères d'acceptation
 
-- Prénom, nom, avatar, langue et fuseau sont persistés.
+- Prénom, nom, avatar et langue sont persistés.
 - Les changements d'Email provenant du fournisseur d'identité sont synchronisés avec le User SignalLab sans créer une nouvelle identité métier.
 - Les changements n’altèrent aucun snapshot historique.
 
