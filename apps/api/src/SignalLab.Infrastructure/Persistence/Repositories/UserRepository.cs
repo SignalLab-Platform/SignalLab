@@ -13,6 +13,16 @@ public sealed class UserRepository : IUserRepository
         this.dbContext = dbContext;
     }
 
+    public Task<User?> GetByIdAsync(
+        UserId userId,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Users
+            .SingleOrDefaultAsync(
+                user => user.Id == userId,
+                cancellationToken);
+    }
+
     public Task<User?> GetByExternalIdentityIdAsync(
         string externalIdentityId,
         CancellationToken cancellationToken)

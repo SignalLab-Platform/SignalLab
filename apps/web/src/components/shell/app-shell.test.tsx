@@ -69,10 +69,7 @@ describe("AppShell", () =>
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("button",
-      {
-        name: "Switch to dark mode",
-      })
+      screen.getByTestId("user-menu")
     ).toBeInTheDocument();
 
     expect(

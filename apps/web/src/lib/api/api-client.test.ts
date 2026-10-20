@@ -1,4 +1,8 @@
-import { apiGet } from "@/lib/api/api-client";
+import
+{
+  apiGet,
+  apiPost,
+} from "@/lib/api/api-client";
 
 describe("apiGet", () =>
 {
@@ -89,5 +93,92 @@ describe("apiGet", () =>
     );
 
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("apiPost", () =>
+{
+  const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  beforeEach(() =>
+  {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.example.test/";
+    global.fetch = jest.fn();
+  });
+
+  afterEach(() =>
+  {
+    process.env.NEXT_PUBLIC_API_URL = originalApiUrl;
+    jest.restoreAllMocks();
+  });
+
+  it("sends an authenticated POST request to the SignalLab API", async () =>
+  {
+    const response =
+    {
+      ok: true,
+      status: 200,
+    } as Response;
+
+    jest.mocked(global.fetch).mockResolvedValue(response);
+
+    const abortController = new AbortController();
+
+    const body =
+    {
+      fileName: "avatar.png",
+      contentType: "image/png",
+      size: 1024,
+    };
+
+    const result = await apiPost(
+      "/users/me/avatar/upload",
+      body,
+      {
+        token: "test-token",
+        signal: abortController.signal,
+      },
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.example.test/users/me/avatar/upload",
+      {
+        method: "POST",
+        headers:
+        {
+          Authorization: "Bearer test-token",
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: abortController.signal,
+      },
+    );
+
+    expect(result).toBe(response);
+  });
+
+  it("throws when the API response is unsuccessful", async () =>
+  {
+    jest.mocked(global.fetch).mockResolvedValue(
+      {
+        ok: false,
+        status: 400,
+      } as Response,
+    );
+
+    await expect(
+      apiPost(
+        "/users/me/avatar/upload",
+        {
+          fileName: "avatar.png",
+        },
+        {
+          token: "test-token",
+        },
+      ),
+    ).rejects.toThrow(
+      "SignalLab API request failed with status 400.",
+    );
   });
 });

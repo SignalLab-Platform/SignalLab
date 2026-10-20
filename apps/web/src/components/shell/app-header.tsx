@@ -1,5 +1,5 @@
-import { AppearanceToggle } from "@/components/appearance/appearance-toggle";
 import { NotificationTrigger } from "@/components/notifications/notification-trigger";
+import { UserMenu } from "@/components/identity/user-menu";
 
 export function AppHeader()
 {
@@ -27,7 +27,7 @@ export function AppHeader()
         className="flex shrink-0 items-center gap-2"
       >
         <NotificationTrigger />
-        <AppearanceToggle />
+        <UserMenu />
       </div>
     </header>
   );

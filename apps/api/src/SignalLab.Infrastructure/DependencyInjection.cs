@@ -3,11 +3,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Clerk.BackendAPI;
+using Amazon.S3;
+using SignalLab.Infrastructure.Storage;
 using SignalLab.Infrastructure.Persistence;
 using SignalLab.Infrastructure.Persistence.Repositories;
 using SignalLab.Infrastructure.Identity;
 using SignalLab.Application.Identity;
 using SignalLab.Application.Users;
+using SignalLab.Application.Storage;
+using SignalLab.Application.Files;
 
 namespace SignalLab.Infrastructure;
 
@@ -28,9 +32,32 @@ public static class DependencyInjection
             new ClerkBackendApi(
                 bearerAuth: clerkSecretKey));
 
+        var objectStorageConfiguration =
+            ObjectStorageConfiguration.FromConfiguration(configuration);
+
+        services.AddSingleton(objectStorageConfiguration);
+
+        services.AddSingleton<IAmazonS3>(_ =>
+        {
+            var clientConfiguration = new AmazonS3Config
+            {
+                ServiceURL = objectStorageConfiguration.Endpoint,
+                AuthenticationRegion = "auto",
+            };
+
+            return new AmazonS3Client(
+                objectStorageConfiguration.AccessKeyId,
+                objectStorageConfiguration.SecretAccessKey,
+                clientConfiguration);
+        });
+
+        services.AddScoped<IObjectStorage, R2ObjectStorage>();
+
         services.AddScoped<IExternalIdentityProvider, ClerkExternalIdentityProvider>();
 
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<IStoredFileRepository, StoredFileRepository>();
         
         return services;
     }

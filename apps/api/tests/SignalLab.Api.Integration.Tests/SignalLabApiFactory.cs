@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SignalLab.Infrastructure.Persistence;
 using SignalLab.Application.Identity;
+using SignalLab.Application.Storage;
+using SignalLab.Domain.Users;
+using SignalLab.Domain.Files;
 
 namespace SignalLab.Api.Integration.Tests;
 
@@ -23,6 +26,15 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     internal TestJwtTokenFactory TokenFactory { get; } = new();
 
     public int ExternalIdentityProviderCallCount { get; private set; }
+
+    public string ExternalIdentityEmail { get; set; } = TestEmail;
+
+    public ObjectMetadata? ObjectStorageMetadata { get; set; } =
+        new ObjectMetadata(
+            "image/png",
+            1024);
+
+    public string? LastObjectStorageMetadataKey { get; private set; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -48,16 +60,39 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
             "Cors:AllowedOrigins:0",
             TestAllowedOrigin);
 
+        builder.UseSetting(
+            "ObjectStorage:Endpoint",
+            "https://r2.example.test");
+
+        builder.UseSetting(
+            "ObjectStorage:BucketName",
+            "signallab-tests");
+
+        builder.UseSetting(
+            "ObjectStorage:AccessKeyId",
+            "test-access-key");
+
+        builder.UseSetting(
+            "ObjectStorage:SecretAccessKey",
+            "test-secret-key");
+
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IExternalIdentityProvider>();
 
             services.AddScoped<IExternalIdentityProvider>(
                 _ => new FakeExternalIdentityProvider(
-                    new ExternalIdentity(
+                    () => new ExternalIdentity(
                         TestExternalUserId,
-                        TestEmail),
+                        ExternalIdentityEmail),
                     () => ExternalIdentityProviderCallCount++));
+
+            services.RemoveAll<IObjectStorage>();
+
+            services.AddScoped<IObjectStorage>(
+                _ => new FakeObjectStorage(
+                    () => ObjectStorageMetadata,
+                    objectKey => LastObjectStorageMetadataKey = objectKey));
 
             services.PostConfigure<JwtBearerOptions>(
                 JwtBearerDefaults.AuthenticationScheme,
@@ -109,14 +144,14 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
 
     private sealed class FakeExternalIdentityProvider : IExternalIdentityProvider
     {
-        private readonly ExternalIdentity identity;
+        private readonly Func<ExternalIdentity> getIdentity;
         private readonly Action onGetById;
 
         public FakeExternalIdentityProvider(
-            ExternalIdentity identity,
+            Func<ExternalIdentity> getIdentity,
             Action onGetById)
         {
-            this.identity = identity;
+            this.getIdentity = getIdentity;
             this.onGetById = onGetById;
         }
 
@@ -126,12 +161,63 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
         {
             onGetById();
 
+            var identity = getIdentity();
+
             if (identity.Id != externalIdentityId)
             {
                 return Task.FromResult<ExternalIdentity?>(null);
             }
 
             return Task.FromResult<ExternalIdentity?>(identity);
+        }
+    }
+
+    private sealed class FakeObjectStorage : IObjectStorage
+    {
+        private readonly Func<ObjectMetadata?> getMetadata;
+        private readonly Action<string> onGetMetadata;
+
+        public FakeObjectStorage(
+            Func<ObjectMetadata?> getMetadata,
+            Action<string> onGetMetadata)
+        {
+            this.getMetadata = getMetadata;
+            this.onGetMetadata = onGetMetadata;
+        }
+
+        public Task<UploadUrl> CreateUploadUrlAsync(
+            string objectKey,
+            string contentType,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                new UploadUrl(
+                    new Uri("https://storage.example.test/upload"),
+                    DateTimeOffset.UtcNow.AddMinutes(10)));
+        }
+
+        public Task<Uri> CreateDownloadUrlAsync(
+            string objectKey,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                new Uri("https://storage.example.test/download"));
+        }
+
+        public Task<ObjectMetadata?> GetMetadataAsync(
+            string objectKey,
+            CancellationToken cancellationToken)
+        {
+            onGetMetadata(objectKey);
+
+            return Task.FromResult(getMetadata());
+        }
+
+        public Task DeleteAsync(
+            string objectKey,
+            CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 
@@ -152,10 +238,59 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
         var dbContext = scope.ServiceProvider
             .GetRequiredService<SignalLabDbContext>();
 
-        await dbContext.Users
-            .Where(user => user.ExternalIdentityId == TestExternalUserId)
-            .ExecuteDeleteAsync();
+        var userId = await dbContext.Users
+            .Where(user =>
+                user.ExternalIdentityId == TestExternalUserId)
+            .Select(user => (UserId?)user.Id)
+            .SingleOrDefaultAsync();
+
+        if (userId is not null)
+        {
+            await dbContext.StoredFiles
+                .Where(file =>
+                    file.OwnerUserId == userId.Value)
+                .ExecuteDeleteAsync();
+
+            await dbContext.Users
+                .Where(user =>
+                    user.Id == userId.Value)
+                .ExecuteDeleteAsync();
+        }
 
         ExternalIdentityProviderCallCount = 0;
+        ExternalIdentityEmail = TestEmail;
+
+        ObjectStorageMetadata = new ObjectMetadata(
+            "image/png",
+            1024);
+
+        LastObjectStorageMetadataKey = null;
+    }
+
+    public async Task<User?> GetTestUserAsync()
+    {
+        using var scope = Services.CreateScope();
+
+        var dbContext = scope.ServiceProvider
+            .GetRequiredService<SignalLabDbContext>();
+
+        return await dbContext.Users
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                user => user.ExternalIdentityId == TestExternalUserId);
+    }
+
+    public async Task<StoredFile?> GetStoredFileAsync(
+        StoredFileId storedFileId)
+    {
+        using var scope = Services.CreateScope();
+
+        var dbContext = scope.ServiceProvider
+            .GetRequiredService<SignalLabDbContext>();
+
+        return await dbContext.StoredFiles
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                storedFile => storedFile.Id == storedFileId);
     }
 }
