@@ -6,6 +6,25 @@ import HomePage from "./page";
 
 jest.mock("@/features/current-user/use-current-user");
 
+jest.mock(
+  "@/features/organizations/organizations-personal-explorer",
+  () =>
+  {
+    return {
+      OrganizationsPersonalExplorer: () =>
+      {
+        return (
+          <section aria-labelledby="organizations-heading">
+            <h2 id="organizations-heading">
+              Organizations
+            </h2>
+          </section>
+        );
+      },
+    };
+  }
+);
+
 describe("HomePage", () =>
 {
   beforeEach(() =>
@@ -49,7 +68,10 @@ describe("HomePage", () =>
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText("No organizations available yet.")
+      screen.getByRole("region",
+      {
+        name: "Organizations",
+      })
     ).toBeInTheDocument();
 
     expect(

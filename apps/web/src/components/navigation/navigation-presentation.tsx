@@ -1,5 +1,5 @@
 import { DocumentPresentation } from "@/components/navigation/document-presentation";
-import { ExplorerPresentation } from "@/components/navigation/explorer-presentation";
+import { ObjectExplorerPresentation } from "@/components/navigation/object-explorer-presentation";
 
 import
 {
@@ -41,7 +41,7 @@ function renderPresentation(
     case "project":
     {
       return (
-        <ExplorerPresentation
+        <ObjectExplorerPresentation
           location={location}
         />
       );

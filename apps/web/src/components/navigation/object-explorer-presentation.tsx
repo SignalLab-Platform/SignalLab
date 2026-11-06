@@ -36,30 +36,30 @@ import
   useNavigationState,
 } from "@/navigation/navigation-state";
 
-type ExplorerLocation =
+type ObjectExplorerLocation =
   | OrganizationNavigationLocation
   | ProjectNavigationLocation;
 
-type ExplorerPresentationProps =
+type ObjectExplorerPresentationProps =
 {
-  location: ExplorerLocation;
+  location: ObjectExplorerLocation;
 };
 
-type ExplorerResource =
+type ObjectExplorerResource =
 {
   type: string;
   label: string;
   href: string;
 };
 
-function getExplorerContextType(location: ExplorerLocation): string
+function getObjectExplorerContextType(location: ObjectExplorerLocation): string
 {
   return location.contextKind === "organization"
     ? "Organization"
     : "Project";
 }
 
-function getExplorerTitle(location: ExplorerLocation): string
+function getObjectExplorerTitle(location: ObjectExplorerLocation): string
 {
   if (location.contextKind === "organization")
   {
@@ -73,7 +73,7 @@ function getExplorerTitle(location: ExplorerLocation): string
     : location.projectId;
 }
 
-function getExplorerResources(location: ExplorerLocation): ExplorerResource[]
+function getObjectExplorerResources(location: ObjectExplorerLocation): ObjectExplorerResource[]
 {
   if (
     location.contextKind === "organization" &&
@@ -115,8 +115,8 @@ function getExplorerResources(location: ExplorerLocation): ExplorerResource[]
   return [];
 }
 
-export function ExplorerPresentation(
-  { location }: Readonly<ExplorerPresentationProps>
+export function ObjectExplorerPresentation(
+  { location }: Readonly<ObjectExplorerPresentationProps>
 )
 {
   const navigationState = useNavigationState();
@@ -126,9 +126,9 @@ export function ExplorerPresentation(
       .resources[location.contextKey]
       ?.explorerSearchQuery ?? "";
 
-  const contextType = getExplorerContextType(location);
-  const title = getExplorerTitle(location);
-  const resources = getExplorerResources(location);
+  const contextType = getObjectExplorerContextType(location);
+  const title = getObjectExplorerTitle(location);
+  const resources = getObjectExplorerResources(location);
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const filteredResources = resources.filter((resource) =>

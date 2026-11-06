@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SignalLab.Application.Users;
 using SignalLab.Application.Files;
+using SignalLab.Application.Organizations;
 
 namespace SignalLab.Application;
 
@@ -16,6 +17,8 @@ public static class DependencyInjection
         services.AddScoped<CreateAvatarUpload>();
         services.AddScoped<CompleteAvatarUpload>();
         services.AddScoped<GetStoredFileDownloadUrl>();
+        services.AddScoped<CreateOrganization>();
+        services.AddScoped<GetCurrentUserOrganizations>();
 
         return services;
     }

@@ -12,6 +12,7 @@ using SignalLab.Application.Identity;
 using SignalLab.Application.Users;
 using SignalLab.Application.Storage;
 using SignalLab.Application.Files;
+using SignalLab.Application.Organizations;
 
 namespace SignalLab.Infrastructure;
 
@@ -58,6 +59,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IStoredFileRepository, StoredFileRepository>();
+
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         
         return services;
     }
