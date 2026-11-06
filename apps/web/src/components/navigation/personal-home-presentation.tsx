@@ -2,12 +2,13 @@
 
 import
 {
-  Building2,
   ClipboardList,
   UserRound,
 } from "lucide-react";
 
 import { useCurrentUser } from "@/features/current-user/use-current-user";
+
+import { OrganizationsPersonalExplorer } from "@/features/organizations/organizations-personal-explorer";
 
 export function PersonalHomePresentation()
 {
@@ -24,9 +25,21 @@ export function PersonalHomePresentation()
 
         <div className="h-28 animate-pulse rounded-xl border bg-card" />
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="h-40 animate-pulse rounded-xl border bg-card" />
-          <div className="h-40 animate-pulse rounded-xl border bg-card" />
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="h-6 w-40 animate-pulse rounded-md bg-muted" />
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="h-36 animate-pulse rounded-xl border bg-card" />
+              <div className="h-36 animate-pulse rounded-xl border bg-card" />
+              <div className="h-36 animate-pulse rounded-xl border bg-card" />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="h-6 w-40 animate-pulse rounded-md bg-muted" />
+            <div className="h-20 animate-pulse rounded-xl border bg-card" />
+          </div>
         </div>
       </div>
     );
@@ -94,55 +107,34 @@ export function PersonalHomePresentation()
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section
-          aria-labelledby="organizations-heading"
-          className="rounded-xl border bg-card p-5"
-        >
-          <div className="flex items-start gap-4">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-              <Building2
-                aria-hidden="true"
-                className="size-5"
-              />
-            </div>
-
-            <div>
-              <h2
-                id="organizations-heading"
-                className="font-medium"
-              >
-                Organizations
-              </h2>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                No organizations available yet.
-              </p>
-            </div>
-          </div>
-        </section>
+      <div className="space-y-8">
+        <OrganizationsPersonalExplorer />
 
         <section
           aria-labelledby="participations-heading"
-          className="rounded-xl border bg-card p-5"
+          className="space-y-4"
         >
-          <div className="flex items-start gap-4">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <header>
+            <h2
+              id="participations-heading"
+              className="text-lg font-semibold tracking-tight"
+            >
+              Participations
+            </h2>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your ongoing study participations.
+            </p>
+          </header>
+
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-3">
               <ClipboardList
                 aria-hidden="true"
-                className="size-5"
+                className="size-5 text-muted-foreground"
               />
-            </div>
 
-            <div>
-              <h2
-                id="participations-heading"
-                className="font-medium"
-              >
-                Participations
-              </h2>
-
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 No participations available yet.
               </p>
             </div>

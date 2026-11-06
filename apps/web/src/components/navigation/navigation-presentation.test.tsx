@@ -43,6 +43,25 @@ jest.mock("next/navigation", () =>
 
 jest.mock("@/features/current-user/use-current-user");
 
+jest.mock(
+  "@/features/organizations/organizations-personal-explorer",
+  () =>
+  {
+    return {
+      OrganizationsPersonalExplorer: () =>
+      {
+        return (
+          <section aria-labelledby="organizations-heading">
+            <h2 id="organizations-heading">
+              Organizations
+            </h2>
+          </section>
+        );
+      },
+    };
+  }
+);
+
 describe("NavigationPresentation", () =>
 {
   beforeEach(() =>

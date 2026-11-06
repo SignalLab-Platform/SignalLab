@@ -26,7 +26,7 @@ describe("navigation resolver", () =>
       pathname: "/organizations/demo-organization/projects",
       contextKind: "organization",
       contextKey: "organization:demo-organization",
-      presentationModel: "explorer",
+      presentationModel: "object-explorer",
       organizationId: "demo-organization",
       localView: "projects",
       hierarchy:
@@ -51,7 +51,7 @@ describe("navigation resolver", () =>
         "/organizations/demo-organization/projects/demo-project/campaigns",
       contextKind: "project",
       contextKey: "project:demo-project",
-      presentationModel: "explorer",
+      presentationModel: "object-explorer",
       organizationId: "demo-organization",
       projectId: "demo-project",
       localView: "campaigns",
@@ -139,7 +139,7 @@ describe("navigation resolver", () =>
       pathname: "/organizations/research%20europe/projects",
       contextKind: "organization",
       contextKey: "organization:research europe",
-      presentationModel: "explorer",
+      presentationModel: "object-explorer",
       organizationId: "research europe",
       localView: "projects",
       hierarchy:
@@ -195,5 +195,10 @@ describe("navigation resolver", () =>
         "/organizations//projects"
       )
     ).toBeNull();
+  });
+
+  it("does not resolve a standalone Organizations PersonalExplorer", () =>
+  {
+    expect(resolveNavigationLocation("/organizations")).toBeNull();
   });
 });

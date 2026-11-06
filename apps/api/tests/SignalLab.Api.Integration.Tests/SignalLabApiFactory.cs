@@ -5,18 +5,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using SignalLab.Infrastructure.Persistence;
 using SignalLab.Application.Identity;
 using SignalLab.Application.Storage;
 using SignalLab.Domain.Users;
 using SignalLab.Domain.Files;
+using SignalLab.Api.Integration.Tests.Infrastructure;
 
 namespace SignalLab.Api.Integration.Tests;
 
 public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
 {
+    public TestDatabase Database => new(Services);
+
     public const string TestIssuer = "https://clerk.example.test";
     public const string TestAuthorizedParty = "https://web.example.test";
     public const string TestAllowedOrigin = "https://web.example.test";
@@ -81,7 +82,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IExternalIdentityProvider>();
 
             services.AddScoped<IExternalIdentityProvider>(
-                _ => new FakeExternalIdentityProvider(
+                _ => new TestExternalIdentityProvider(
                     () => new ExternalIdentity(
                         TestExternalUserId,
                         ExternalIdentityEmail),
@@ -90,7 +91,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IObjectStorage>();
 
             services.AddScoped<IObjectStorage>(
-                _ => new FakeObjectStorage(
+                _ => new TestObjectStorage(
                     () => ObjectStorageMetadata,
                     objectKey => LastObjectStorageMetadataKey = objectKey));
 
@@ -142,120 +143,14 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
         return connectionStringBuilder.ConnectionString;
     }
 
-    private sealed class FakeExternalIdentityProvider : IExternalIdentityProvider
+    public Task InitializeDatabaseAsync()
     {
-        private readonly Func<ExternalIdentity> getIdentity;
-        private readonly Action onGetById;
-
-        public FakeExternalIdentityProvider(
-            Func<ExternalIdentity> getIdentity,
-            Action onGetById)
-        {
-            this.getIdentity = getIdentity;
-            this.onGetById = onGetById;
-        }
-
-        public Task<ExternalIdentity?> GetByIdAsync(
-            string externalIdentityId,
-            CancellationToken cancellationToken)
-        {
-            onGetById();
-
-            var identity = getIdentity();
-
-            if (identity.Id != externalIdentityId)
-            {
-                return Task.FromResult<ExternalIdentity?>(null);
-            }
-
-            return Task.FromResult<ExternalIdentity?>(identity);
-        }
-    }
-
-    private sealed class FakeObjectStorage : IObjectStorage
-    {
-        private readonly Func<ObjectMetadata?> getMetadata;
-        private readonly Action<string> onGetMetadata;
-
-        public FakeObjectStorage(
-            Func<ObjectMetadata?> getMetadata,
-            Action<string> onGetMetadata)
-        {
-            this.getMetadata = getMetadata;
-            this.onGetMetadata = onGetMetadata;
-        }
-
-        public Task<UploadUrl> CreateUploadUrlAsync(
-            string objectKey,
-            string contentType,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(
-                new UploadUrl(
-                    new Uri("https://storage.example.test/upload"),
-                    DateTimeOffset.UtcNow.AddMinutes(10)));
-        }
-
-        public Task<Uri> CreateDownloadUrlAsync(
-            string objectKey,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(
-                new Uri("https://storage.example.test/download"));
-        }
-
-        public Task<ObjectMetadata?> GetMetadataAsync(
-            string objectKey,
-            CancellationToken cancellationToken)
-        {
-            onGetMetadata(objectKey);
-
-            return Task.FromResult(getMetadata());
-        }
-
-        public Task DeleteAsync(
-            string objectKey,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
-    public async Task InitializeDatabaseAsync()
-    {
-        using var scope = Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<SignalLabDbContext>();
-
-        await dbContext.Database.MigrateAsync();
+        return Database.InitializeAsync();
     }
 
     public async Task ResetTestUserAsync()
     {
-        using var scope = Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<SignalLabDbContext>();
-
-        var userId = await dbContext.Users
-            .Where(user =>
-                user.ExternalIdentityId == TestExternalUserId)
-            .Select(user => (UserId?)user.Id)
-            .SingleOrDefaultAsync();
-
-        if (userId is not null)
-        {
-            await dbContext.StoredFiles
-                .Where(file =>
-                    file.OwnerUserId == userId.Value)
-                .ExecuteDeleteAsync();
-
-            await dbContext.Users
-                .Where(user =>
-                    user.Id == userId.Value)
-                .ExecuteDeleteAsync();
-        }
+        await Database.ResetUserAsync(TestExternalUserId);
 
         ExternalIdentityProviderCallCount = 0;
         ExternalIdentityEmail = TestEmail;
@@ -267,30 +162,14 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
         LastObjectStorageMetadataKey = null;
     }
 
-    public async Task<User?> GetTestUserAsync()
+    public Task<User?> GetTestUserAsync()
     {
-        using var scope = Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<SignalLabDbContext>();
-
-        return await dbContext.Users
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                user => user.ExternalIdentityId == TestExternalUserId);
+        return Database.GetUserAsync(TestExternalUserId);
     }
 
-    public async Task<StoredFile?> GetStoredFileAsync(
+    public Task<StoredFile?> GetStoredFileAsync(
         StoredFileId storedFileId)
     {
-        using var scope = Services.CreateScope();
-
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<SignalLabDbContext>();
-
-        return await dbContext.StoredFiles
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                storedFile => storedFile.Id == storedFileId);
+        return Database.GetStoredFileAsync(storedFileId);
     }
 }

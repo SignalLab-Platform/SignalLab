@@ -988,6 +988,12 @@ Ils ne peuvent jamais être partagés entre plusieurs Organizations.
 
 Toutes les permissions référencées doivent appartenir au **Permission Catalogue** de SignalLab.
 
+Les autorisations d'un `Role` sont définies par son ensemble de `Permissions`, et non par son `Name` ou son identité système.
+
+Les `Roles` système constituent des configurations initiales de Permissions fournies par SignalLab. Leur caractère système protège leur identité et les invariants métier associés, mais n'implique pas que toutes leurs Permissions soient définitivement immuables.
+
+La personnalisation des Permissions des `Roles`, ainsi que la création de `Roles` personnalisés, appartiennent au périmètre post-MVP.
+
 ---
 
 ## Permission Catalogue
@@ -1053,11 +1059,11 @@ Dans le MVP, chaque `OrganizationMember` possède exactement un rôle actif parm
 * `Administrator` ;
 * `Owner`.
 
-Ces trois Roles sont créés et maintenus par SignalLab.
+Ces trois `Roles` sont initialisés par SignalLab lors de la création de chaque `Organization`, avec des ensembles prédéfinis de `Permissions`.
 
-Une Organization ne peut ni les supprimer, ni modifier leur identité, ni redéfinir librement leurs Permissions dans le MVP.
+Dans le MVP, une `Organization` ne peut ni supprimer ces `Roles`, ni modifier leur identité, ni personnaliser leurs `Permissions`.
 
-Leur hiérarchie fonctionnelle est la suivante :
+Leur hiérarchie fonctionnelle initiale est la suivante :
 
 ```text
 Owner
@@ -1065,9 +1071,15 @@ Owner
     └── Member
 ```
 
-Cette représentation signifie qu'un `Owner` dispose de toutes les capacités d'un `Administrator`, et qu'un `Administrator` dispose de toutes les capacités d'un `Member`.
+Dans le MVP, un `Owner` dispose de toutes les capacités d'un `Administrator`, et un `Administrator` dispose de toutes les capacités d'un `Member`.
 
-Elle ne nécessite pas un mécanisme technique d'héritage entre Roles.
+Cette hiérarchie décrit les ensembles de Permissions prédéfinis. Elle ne nécessite pas de mécanisme technique d'héritage entre `Roles` et ne constitue pas une contrainte permanente d'inclusion des Permissions.
+
+Après le MVP, les Permissions des trois `Roles` système pourront être personnalisées, sous réserve des protections associées à leur identité et des invariants de gouvernance de l'Organization.
+
+Le `Role` système `Owner` reste non supprimable. Certaines Permissions critiques de gouvernance lui sont obligatoirement conservées et ne peuvent pas lui être retirées. Certaines de ces Permissions peuvent également être réservées exclusivement aux Owners.
+
+Le catalogue précis de ces Permissions protégées et les règles de personnalisation seront définis lors de l'implémentation post-MVP.
 
 ---
 
@@ -1184,7 +1196,16 @@ Le MVP applique les règles suivantes :
 * au moins un Owner actif par Organization ;
 * aucune Permission attribuée directement à un User ou à un OrganizationMember.
 
-Les Roles personnalisables, l'attribution de plusieurs Roles à un même OrganizationMember et les Roles propres aux Projects appartiennent au périmètre post-MVP.
+Les fonctionnalités suivantes appartiennent au périmètre post-MVP :
+
+- création, modification et suppression contrôlée de `Roles` personnalisés ;
+- personnalisation des Permissions des `Roles` système, avec protection de leur identité et des Permissions critiques du rôle `Owner` ;
+- attribution de plusieurs `Roles` à un même `OrganizationMember` ;
+- `Roles` propres aux Projects.
+
+Ces évolutions ne modifient pas le principe fondamental d'autorisation : les fonctionnalités métier vérifient les Permissions effectives, indépendamment du nom des `Roles` qui les accordent.
+
+Les invariants de gouvernance, notamment l'obligation de conserver au moins un Owner actif, restent applicables indépendamment des Permissions configurables.
 
 ---
 

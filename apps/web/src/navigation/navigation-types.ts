@@ -54,7 +54,8 @@ export type NavigationResourceKind =
 
 export type NavigationPresentationModel =
   | "personal-hub"
-  | "explorer"
+  | "personal-explorer"
+  | "object-explorer"
   | "workspace"
   | "document";
 
@@ -90,7 +91,7 @@ export type HomeNavigationLocation = BaseNavigationLocation &
 export type OrganizationNavigationLocation = BaseNavigationLocation &
 {
   contextKind: "organization";
-  presentationModel: "explorer";
+  presentationModel: "object-explorer";
   organizationId: string;
   localView: OrganizationView;
 };
@@ -98,7 +99,7 @@ export type OrganizationNavigationLocation = BaseNavigationLocation &
 export type ProjectNavigationLocation = BaseNavigationLocation &
 {
   contextKind: "project";
-  presentationModel: "explorer";
+  presentationModel: "object-explorer";
   organizationId: string;
   projectId: string;
   localView: ProjectView;

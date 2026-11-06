@@ -149,7 +149,7 @@ function resolveOrganizationLocation(
     pathname: buildOrganizationRoute(organizationId, view),
     contextKind: "organization",
     contextKey: `organization:${organizationId}`,
-    presentationModel: "explorer",
+    presentationModel: "object-explorer",
     organizationId,
     localView: view,
     hierarchy:
@@ -188,7 +188,7 @@ function resolveProjectLocation(
     pathname: buildProjectRoute(organizationId, projectId, view),
     contextKind: "project",
     contextKey: `project:${projectId}`,
-    presentationModel: "explorer",
+    presentationModel: "object-explorer",
     organizationId,
     projectId,
     localView: view,
