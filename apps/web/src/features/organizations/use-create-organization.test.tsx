@@ -170,17 +170,17 @@ describe("useCreateOrganization", () =>
       website: null,
     };
 
-    await act(async () =>
-    {
-      await expect(
-        result.current.mutateAsync(input)
-      ).rejects.toThrow(
-        "Unable to obtain an authentication token for the current user."
-      );
-    });
+    await expect(
+      result.current.mutateAsync(input)
+    ).rejects.toThrow(
+      "Unable to obtain an authentication token for the current user."
+    );
 
     expect(createOrganization).not.toHaveBeenCalled();
-    expect(result.current.isError).toBe(true);
+    await waitFor(() =>
+    {
+      expect(result.current.isError).toBe(true);
+    });
   });
 
   it("propagates API errors without invalidating the organizations query", async () =>
@@ -201,21 +201,22 @@ describe("useCreateOrganization", () =>
       }
     );
 
-    await act(async () =>
+    await expect(
+      result.current.mutateAsync(
+      {
+        name: "",
+        country: "France",
+        website: null,
+      })
+    ).rejects.toThrow(
+      "SignalLab API request failed with status 400."
+    );
+
+    await waitFor(() =>
     {
-      await expect(
-        result.current.mutateAsync(
-        {
-          name: "",
-          country: "France",
-          website: null,
-        })
-      ).rejects.toThrow(
-        "SignalLab API request failed with status 400."
-      );
+      expect(result.current.isError).toBe(true);
     });
 
-    expect(result.current.isError).toBe(true);
     expect(invalidateQueries).not.toHaveBeenCalled();
   });
 });

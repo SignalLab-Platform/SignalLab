@@ -1,13 +1,13 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import Script from "next/script";
 
-import { APPEARANCE_INITIALIZER_SCRIPT } from "@/lib/appearance";
-import { SIDEBAR_INITIALIZER_SCRIPT } from "@/lib/sidebar";
 import { AppProviders } from "@/providers/app-providers";
 
 import "./globals.css";
+
+import { APPEARANCE_INITIALIZER_SCRIPT } from "@/lib/appearance";
+import { SIDEBAR_INITIALIZER_SCRIPT } from "@/lib/sidebar";
 
 const geist = Geist(
 {
@@ -36,21 +36,19 @@ export default function RootLayout(
       className={geist.variable}
       suppressHydrationWarning
     >
-      <body>
-        <Script
+      <head>
+        <script
           id="appearance-initializer"
-          strategy="beforeInteractive"
-        >
-          {APPEARANCE_INITIALIZER_SCRIPT}
-        </Script>
+          dangerouslySetInnerHTML={{ __html: APPEARANCE_INITIALIZER_SCRIPT }}
+        />
 
-        <Script
+        <script
           id="sidebar-initializer"
-          strategy="beforeInteractive"
-        >
-          {SIDEBAR_INITIALIZER_SCRIPT}
-        </Script>
+          dangerouslySetInnerHTML={{ __html: SIDEBAR_INITIALIZER_SCRIPT }}
+        />
+      </head>
 
+      <body>
         <ClerkProvider>
           <AppProviders>
             {children}

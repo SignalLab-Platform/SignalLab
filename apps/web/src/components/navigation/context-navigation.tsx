@@ -3,11 +3,14 @@
 import
 {
   Building2,
-  ClipboardList,
-  Folder,
+  ChevronDown,
+  ChevronRight,
+  Blocks,
   House,
-  Megaphone,
+  Search,
 } from "lucide-react";
+
+import { useState } from "react";
 
 import type
 {
@@ -17,7 +20,7 @@ import type
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { DEMO_NAVIGATION_DATA } from "@/navigation/demo-navigation-data";
+import { useOrganizations } from "@/features/organizations/use-organizations";
 
 import
 {
@@ -28,10 +31,7 @@ import
 import
 {
   HOME_ROUTE,
-  buildCampaignRoute,
   buildOrganizationRoute,
-  buildParticipationRoute,
-  buildProjectRoute,
 } from "@/navigation/navigation-routes";
 
 import
@@ -41,10 +41,7 @@ import
 
 import
 {
-  CAMPAIGN_VIEWS,
   ORGANIZATION_VIEWS,
-  PARTICIPATION_SECTIONS,
-  PROJECT_VIEWS,
 } from "@/navigation/navigation-types";
 
 import type
@@ -55,10 +52,7 @@ import type
 
 type ContextNavigationKind =
   | "home"
-  | "organization"
-  | "project"
-  | "campaign"
-  | "participation";
+  | "organization";
 
 type ContextNavigationStatus =
   | "current"
@@ -72,9 +66,6 @@ type ContextNavigationItem =
   href: string;
   icon: LucideIcon;
   organizationId?: string;
-  projectId?: string;
-  campaignId?: string;
-  participationId?: string;
 };
 
 function buildOrganizationContextKey(
@@ -82,27 +73,6 @@ function buildOrganizationContextKey(
 ): NavigationContextKey
 {
   return `organization:${organizationId}`;
-}
-
-function buildProjectContextKey(
-  projectId: string
-): NavigationContextKey
-{
-  return `project:${projectId}`;
-}
-
-function buildCampaignContextKey(
-  campaignId: string
-): NavigationContextKey
-{
-  return `campaign:${campaignId}`;
-}
-
-function buildParticipationContextKey(
-  participationId: string
-): NavigationContextKey
-{
-  return `participation:${participationId}`;
 }
 
 function getContextNavigationStatus(
@@ -147,47 +117,6 @@ function getContextNavigationStatus(
 
       return "available";
     }
-
-    case "project":
-    {
-      if (
-        location.contextKind === "project" &&
-        location.projectId === item.projectId
-      )
-      {
-        return "current";
-      }
-
-      if (
-        location.contextKind === "campaign" &&
-        location.projectId === item.projectId
-      )
-      {
-        return "ancestor";
-      }
-
-      return "available";
-    }
-
-    case "campaign":
-    {
-      return (
-        location.contextKind === "campaign" &&
-        location.campaignId === item.campaignId
-      )
-        ? "current"
-        : "available";
-    }
-
-    case "participation":
-    {
-      return (
-        location.contextKind === "participation" &&
-        location.participationId === item.participationId
-      )
-        ? "current"
-        : "available";
-    }
   }
 }
 
@@ -225,7 +154,7 @@ function renderContextNavigationItem(
 
   return (
     <Link
-      key={item.kind}
+      key={item.href}
       href={item.href}
       scroll={false}
       title={item.label}
@@ -252,48 +181,168 @@ function renderContextNavigationItem(
   );
 }
 
+
+type OrganizationNavigationItemProps =
+{
+  item: ContextNavigationItem;
+  location: NavigationLocation | null;
+  isExpanded: boolean;
+  onToggle: (organizationId: string) => void;
+};
+
+function OrganizationNavigationItem(
+  props: OrganizationNavigationItemProps
+)
+{
+  const {
+    item,
+    location,
+    isExpanded,
+    onToggle,
+  } = props;
+
+  const organizationId = item.organizationId;
+
+  if (!organizationId)
+  {
+    return null;
+  }
+
+  const status = getContextNavigationStatus(location, item);
+
+  return (
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-center gap-1">
+        <button
+          type="button"
+          aria-label={`${isExpanded ? "Collapse" : "Expand"} ${item.label}`}
+          aria-expanded={isExpanded}
+          aria-controls={`organization-children-${organizationId}`}
+          onClick={() =>
+          {
+            onToggle(organizationId);
+          }}
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+        >
+          {isExpanded
+            ? <ChevronDown aria-hidden="true" className="size-4" />
+            : <ChevronRight aria-hidden="true" className="size-4" />}
+        </button>
+
+        <Link
+          href={item.href}
+          scroll={false}
+          title={item.label}
+          aria-current={status === "current" ? "location" : undefined}
+          data-context-status={status}
+          className={`${getItemClassName(status)} flex-1 px-2`}
+        >
+          <Building2
+            aria-hidden="true"
+            className="size-4 shrink-0"
+          />
+
+          <span
+            data-sidebar-expanded-only
+            className="min-w-0 truncate"
+          >
+            {item.label}
+          </span>
+        </Link>
+      </div>
+
+      <div
+        id={`organization-children-${organizationId}`}
+        hidden={!isExpanded}
+        data-sidebar-expanded-only
+        className="ml-9 border-l border-sidebar-border pl-3"
+      >
+        {isExpanded && (
+          <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
+            <Blocks aria-hidden="true" className="size-3.5 shrink-0" />
+            <span>No projects yet.</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ContextNavigation()
 {
   const pathname = usePathname();
   const location = resolveNavigationLocation(pathname);
   const navigationState = useNavigationState();
-  const isPersonalHome = location?.contextKind === "home";
+  const organizationsQuery = useOrganizations();
+  const [sidebarFilter, setSidebarFilter] = useState("");
 
-  const organization = DEMO_NAVIGATION_DATA.organization;
-  const project = DEMO_NAVIGATION_DATA.project;
-  const campaign = DEMO_NAVIGATION_DATA.campaign;
-  const participation = DEMO_NAVIGATION_DATA.participation;
+  const activeOrganizationId =
+    location?.contextKind === "organization" ||
+    location?.contextKind === "project" ||
+    location?.contextKind === "campaign"
+      ? location.organizationId
+      : null;
 
-  const organizationView = getPersistedLocalView(
-    navigationState,
-    buildOrganizationContextKey(organization.id),
-    ORGANIZATION_VIEWS,
-    "all"
-  );
+  type OrganizationExpansionState =
+  {
+    expandedIds: Set<string>;
+    navigationKey: string;
+  };
 
-  const projectView = getPersistedLocalView(
-    navigationState,
-    buildProjectContextKey(project.id),
-    PROJECT_VIEWS,
-    "all"
-  );
+  const navigationKey = location?.contextKey ?? pathname;
 
-  const campaignView = getPersistedLocalView(
-    navigationState,
-    buildCampaignContextKey(campaign.id),
-    CAMPAIGN_VIEWS,
-    "overview"
-  );
+  const [expansionState, setExpansionState] =
+    useState<OrganizationExpansionState>(() =>
+    {
+      return {
+        expandedIds: activeOrganizationId
+          ? new Set([activeOrganizationId])
+          : new Set<string>(),
+        navigationKey,
+      };
+    });
 
-  const participationSection =
-    getPersistedLocalView(
-      navigationState,
-      buildParticipationContextKey(
-        participation.id
-      ),
-      PARTICIPATION_SECTIONS,
-      "overview"
-    );
+  let currentExpansionState = expansionState;
+
+  if (expansionState.navigationKey !== navigationKey)
+  {
+    const nextExpandedIds = new Set(expansionState.expandedIds);
+
+    if (activeOrganizationId)
+    {
+      nextExpandedIds.add(activeOrganizationId);
+    }
+
+    currentExpansionState =
+    {
+      expandedIds: nextExpandedIds,
+      navigationKey,
+    };
+
+    setExpansionState(currentExpansionState);
+  }
+
+  function toggleOrganization(organizationId: string): void
+  {
+    setExpansionState((previous) =>
+    {
+      const nextExpandedIds = new Set(previous.expandedIds);
+
+      if (nextExpandedIds.has(organizationId))
+      {
+        nextExpandedIds.delete(organizationId);
+      }
+      else
+      {
+        nextExpandedIds.add(organizationId);
+      }
+
+      return {
+        ...previous,
+        expandedIds: nextExpandedIds,
+      };
+    });
+  }
 
   const homeItem: ContextNavigationItem =
   {
@@ -304,56 +353,33 @@ export function ContextNavigation()
   };
 
   const workspaceItems: ContextNavigationItem[] =
-  [
+    (organizationsQuery.data ?? []).map((organization) =>
     {
-      kind: "organization",
-      label: organization.label,
-      href: buildOrganizationRoute(
-        organization.id,
-        organizationView
-      ),
-      icon: Building2,
-      organizationId: organization.id,
-    },
-    {
-      kind: "project",
-      label: project.label,
-      href: buildProjectRoute(
-        organization.id,
-        project.id,
-        projectView
-      ),
-      icon: Folder,
-      organizationId: organization.id,
-      projectId: project.id,
-    },
-    {
-      kind: "campaign",
-      label: campaign.label,
-      href: buildCampaignRoute(
-        organization.id,
-        project.id,
-        campaign.id,
-        campaignView
-      ),
-      icon: Megaphone,
-      organizationId: organization.id,
-      projectId: project.id,
-      campaignId: campaign.id,
-    },
-  ];
+      const organizationView = getPersistedLocalView(
+        navigationState,
+        buildOrganizationContextKey(organization.id),
+        ORGANIZATION_VIEWS,
+        "all"
+      );
 
-  const participationItem: ContextNavigationItem =
+      return {
+        kind: "organization",
+        label: organization.name,
+        href: buildOrganizationRoute(
+          organization.id,
+          organizationView
+        ),
+        icon: Building2,
+        organizationId: organization.id,
+      };
+    });
+
+  const normalizedSidebarFilter = sidebarFilter.trim().toLocaleLowerCase();
+
+  const filteredWorkspaceItems = workspaceItems.filter((item) =>
   {
-    kind: "participation",
-    label: participation.label,
-    href: buildParticipationRoute(
-      participation.id,
-      participationSection
-    ),
-    icon: ClipboardList,
-    participationId: participation.id,
-  };
+    return item.label.toLocaleLowerCase().includes(normalizedSidebarFilter);
+  });
 
   return (
     <nav
@@ -367,6 +393,30 @@ export function ContextNavigation()
         )}
       </div>
 
+      <div
+        data-sidebar-expanded-only
+        className="mt-3 px-1"
+      >
+        <div className="relative">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+
+          <input
+            type="search"
+            aria-label="Filter workspaces"
+            placeholder="Filter workspaces..."
+            value={sidebarFilter}
+            onChange={(event) =>
+            {
+              setSidebarFilter(event.target.value);
+            }}
+            className="h-9 w-full rounded-lg border border-sidebar-border bg-sidebar-accent/40 pl-9 pr-3 text-sm text-sidebar-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          />
+        </div>
+      </div>
+
       <div className="mt-3 space-y-1 border-t border-sidebar-border pt-3">
         <p
           data-sidebar-expanded-only
@@ -375,22 +425,63 @@ export function ContextNavigation()
           Workspaces
         </p>
 
-        {isPersonalHome
+        {organizationsQuery.isPending
           ? (
+            <p
+              data-sidebar-expanded-only
+              role="status"
+              className="px-3 py-2 text-xs text-muted-foreground"
+            >
+              Loading workspaces...
+            </p>
+          )
+          : organizationsQuery.isError
+            ? (
               <p
                 data-sidebar-expanded-only
-                className="px-3 py-2 text-xs text-muted-foreground"
+                role="alert"
+                className="px-3 py-2 text-xs text-destructive"
               >
-                No workspaces yet.
+                Unable to load workspaces.
               </p>
             )
-          : workspaceItems.map((item) =>
-            {
-              return renderContextNavigationItem(
-                item,
-                location
-              );
-            })}
+            : workspaceItems.length === 0
+              ? (
+                <p
+                  data-sidebar-expanded-only
+                  className="px-3 py-2 text-xs text-muted-foreground"
+                >
+                  No workspaces yet.
+                </p>
+              )
+              : filteredWorkspaceItems.length === 0
+                ? (
+                  <p
+                    data-sidebar-expanded-only
+                    className="px-3 py-2 text-xs text-muted-foreground"
+                  >
+                    No matching workspaces.
+                  </p>
+                )
+                : filteredWorkspaceItems.map((item) =>
+                  {
+                    const organizationId = item.organizationId;
+
+                    if (!organizationId)
+                    {
+                      return null;
+                    }
+
+                    return (
+                      <OrganizationNavigationItem
+                        key={organizationId}
+                        item={item}
+                        location={location}
+                        isExpanded={currentExpansionState.expandedIds.has(organizationId)}
+                        onToggle={toggleOrganization}
+                      />
+                    );
+                  })}
       </div>
 
       <div className="mt-3 space-y-1 border-t border-sidebar-border pt-3">
@@ -401,19 +492,12 @@ export function ContextNavigation()
           My participations
         </p>
 
-        {isPersonalHome
-          ? (
-              <p
-                data-sidebar-expanded-only
-                className="px-3 py-2 text-xs text-muted-foreground"
-              >
-                No participations yet.
-              </p>
-            )
-          : renderContextNavigationItem(
-              participationItem,
-              location
-            )}
+        <p
+          data-sidebar-expanded-only
+          className="px-3 py-2 text-xs text-muted-foreground"
+        >
+          No participations yet.
+        </p>
       </div>
     </nav>
   );

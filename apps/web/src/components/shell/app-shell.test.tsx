@@ -27,6 +27,20 @@ jest.mock(
   }
 );
 
+jest.mock("@/features/organizations/use-organizations", () =>
+{
+  return {
+    useOrganizations: () =>
+    {
+      return {
+        data: [],
+        isPending: false,
+        isError: false,
+      };
+    },
+  };
+});
+
 describe("AppShell", () =>
 {
   beforeEach(() =>
