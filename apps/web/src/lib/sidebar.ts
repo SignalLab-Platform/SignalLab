@@ -71,3 +71,27 @@ export function applySidebarState(state: SidebarState): void
 
   document.documentElement.dataset.sidebarState = state;
 }
+
+const SIDEBAR_CHANGE_EVENT = "signallab:sidebar-change";
+
+export function getServerSidebarState(): SidebarState
+{
+  return DEFAULT_SIDEBAR_STATE;
+}
+
+export function subscribeSidebarState(callback: () => void): () => void
+{
+  window.addEventListener(SIDEBAR_CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+
+  return () =>
+  {
+    window.removeEventListener(SIDEBAR_CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+export function notifySidebarStateChanged(): void
+{
+  window.dispatchEvent(new Event(SIDEBAR_CHANGE_EVENT));
+}

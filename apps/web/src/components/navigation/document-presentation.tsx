@@ -1,3 +1,8 @@
+import 
+{ 
+  ClipboardList,
+} from "lucide-react";
+
 import
 {
   DocumentTableOfContents,
@@ -55,6 +60,7 @@ export function DocumentPresentation(
         variant="document"
         contextType="Participation"
         contextLabel={title}
+        contextIcon={ClipboardList}
         navigation={
           <DocumentTableOfContents location={location} />
         }

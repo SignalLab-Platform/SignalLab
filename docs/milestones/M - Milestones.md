@@ -974,17 +974,43 @@ Créer Organization et son premier Owner dans une transaction.
 
 ### Description
 
-Ajouter la sélection du contexte Organization dans la Sidebar.
+Implémenter la sélection et la navigation entre les Organizations accessibles au User depuis la Sidebar, en s'appuyant sur les données réelles du domaine Organization.
+
+Adapter la Sidebar et la barre contextuelle du Content afin de garantir une navigation cohérente entre les différents contextes métier de SignalLab.
 
 ### Critères d'acceptation
 
-- Le changement met à jour Sidebar et Content.
-- Le Header reste global.
-- Une URL directe restaure l’Organization active.
+- La Sidebar affiche les Organizations accessibles au User à partir des données réelles.
+- Chaque Organization peut être ouverte depuis la Sidebar et possède une URL de contexte.
+- La sélection d'une Organization met à jour la Sidebar et le Content sans modifier le Header global.
+- Une URL directe permet de restaurer le contexte Organization.
+- La Sidebar distingue visuellement la ressource active de ses ancêtres.
+- Plusieurs Organizations peuvent être développées simultanément.
+- La navigation vers un contexte enfant développe automatiquement son Organization parente.
+- Le User peut développer ou réduire manuellement chaque Organization.
+- Un filtre local permet de rechercher les Organizations par nom sans modifier le contexte actif ni l'état d'expansion.
+- La Sidebar possède des états Expanded et Collapsed, mémorisés entre les sessions.
+- En état Collapsed, seule la commande de réouverture reste visible ; la navigation est masquée.
+- La barre contextuelle affiche le type de ressource par un pictogramme et son nom, avec une navigation locale alignée à droite.
+- Les contextes dont les domaines ne sont pas encore implémentés conservent leurs placeholders structurels sans afficher de ressources métier fictives.
+- Les états de chargement, d'absence de données et d'erreur sont représentés.
+- Les interactions restent accessibles au clavier et les contrôles possèdent des libellés accessibles.
+
+### Hors scope spécifique
+
+- Implémentation des Projects et Campaigns.
+- Affichage de ressources métier réelles dans l'Object Explorer.
+- Création de ressources depuis l'Explorer.
+- Recherche de ressources dans l'Explorer.
+- Gestion des Members, Invitations et Settings de l'Organization, prévue dans SL-029.
 
 ### Definition of Done
 
-- Implémenter le sélecteur d’Organization validé par les tests et la documentation.
+- Sélection et navigation entre Organizations validées par les tests automatisés.
+- Comportements Expanded et Collapsed validés manuellement.
+- Navigation locale et restauration du contexte validées.
+- UX Architecture mise à jour pour refléter les comportements implémentés.
+- Implémenter le sélecteur d'Organization validé par les tests et la documentation.
 
 ---
 
@@ -999,6 +1025,10 @@ Créer l’Explorer avec Members, Invitations et Settings pour cette Milestone.
 - Recherche et états vides respectent UX Architecture.
 - La navigation locale possède ses URLs.
 - Les futures ressources peuvent s’y intégrer.
+- L'Organization Explorer réutilise la barre contextuelle et la Local Navigation introduites en SL-028.
+- Les ressources réellement disponibles sont présentées dans les vues correspondantes, sans données de démonstration.
+- La Context Search porte sur les ressources de l'Organization affichées dans l'Explorer ; elle ne modifie ni le filtre ni l'expansion de la Sidebar.
+- Les états vides distinguent l'absence de ressources de l'indisponibilité temporaire d'une fonctionnalité.
 
 ### Definition of Done
 
@@ -1264,6 +1294,16 @@ Intégrer Project à Context Navigation et aux URLs profondes.
 - Sidebar reflète Organization puis Project.
 - Le changement conserve le Shell.
 - Les états de chaque Project sont indépendants.
+- La Sidebar affiche les Projects réels sous leur Organization parente.
+- Chaque Project possède une entrée de navigation vers son propre Explorer.
+- La navigation vers un Project développe automatiquement son Organization parente.
+- Le User conserve la possibilité de réduire manuellement une Organization, même lorsqu'elle contient le Project actif.
+- Plusieurs Organizations peuvent rester développées simultanément.
+- La sélection visuelle distingue le Project actif de son Organization parente.
+- Les états d'expansion manuelle sont préservés lors des changements de contexte, conformément aux règles de SL-028.
+- Le filtre local de la Sidebar est étendu aux Projects : une correspondance sur le nom d'un Project conserve son Organization parente visible dans les résultats.
+- Le filtrage ne modifie pas le contexte actif ni l'état d'expansion mémorisé.
+- Les URLs profondes permettent de restaurer le contexte Project et son appartenance à l'Organization.
 
 ### Definition of Done
 
@@ -1334,6 +1374,9 @@ Ajouter recherche, tris et filtre Archived.
 - Recherche instantanée.
 - Tri alphabétique et par dates.
 - État d’Explorer restauré.
+- La recherche, le tri et le filtre Archived s'appliquent aux Projects présentés dans l'Organization Explorer.
+- Ces contrôles ne modifient pas le filtre local de la Sidebar.
+- Les paramètres d'organisation de l'Explorer sont indépendants de l'état d'expansion des Organizations dans la Sidebar.
 
 ### Definition of Done
 
@@ -1592,6 +1635,12 @@ Ajouter recherche, tri et filtres de statut dans le Project Explorer.
 
 - Campaigns retrouvables par nom et dates.
 - Archived séparées de l’activité courante.
+- Les Campaigns sont recherchables et filtrables dans le Project Explorer, indépendamment du filtre local de la Sidebar.
+- La Sidebar intègre les Campaigns réelles sous leur Project parent lorsque leur navigation contextuelle devient disponible.
+- La navigation vers une Campaign développe automatiquement les niveaux Organization et Project nécessaires à sa localisation dans l'arborescence.
+- Le filtre local de la Sidebar peut rechercher les Campaigns par nom tout en conservant leurs ancêtres visibles.
+- Les filtres de la Sidebar ne modifient pas les filtres, tris ou états de l'Explorer.
+- La navigation directe vers une Campaign restaure son contexte sans réinitialiser les expansions manuelles non concernées.
 
 ### Definition of Done
 

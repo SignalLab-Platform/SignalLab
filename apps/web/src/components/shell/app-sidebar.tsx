@@ -6,23 +6,27 @@ import
   PanelLeftOpen,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { ContextNavigation } from "@/components/navigation/context-navigation";
-
 
 import
 {
   applySidebarState,
+  getServerSidebarState,
+  notifySidebarStateChanged,
   readStoredSidebarState,
   storeSidebarState,
+  subscribeSidebarState,
 } from "@/lib/sidebar";
-
-import type { SidebarState } from "@/lib/sidebar";
 
 export function AppSidebar()
 {
-  const [state, setState] = useState<SidebarState>(readStoredSidebarState);
+  const state = useSyncExternalStore(
+    subscribeSidebarState,
+    readStoredSidebarState,
+    getServerSidebarState
+  );
 
   const isCollapsed = state === "collapsed";
   const buttonLabel = isCollapsed ? "Expand sidebar" : "Collapse sidebar";
@@ -33,7 +37,7 @@ export function AppSidebar()
 
     applySidebarState(nextState);
     storeSidebarState(nextState);
-    setState(nextState);
+    notifySidebarStateChanged();
   }
 
   return (
@@ -43,14 +47,10 @@ export function AppSidebar()
       className="min-h-0 min-w-0 overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
     >
       <div className="flex h-full min-h-0 flex-col">
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-sidebar-border px-3">
-          <p
-            data-sidebar-expanded-only
-            className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground"
-          >
-            Context
-          </p>
-
+        <div
+          data-sidebar-header
+          className="flex h-14 shrink-0 items-center justify-end border-b border-sidebar-border px-3"
+        >
           <button
             type="button"
             aria-controls="application-sidebar-content"
@@ -77,11 +77,11 @@ export function AppSidebar()
 
         <div
           id="application-sidebar-content"
+          data-sidebar-expanded-only
           className="min-h-0 flex-1 overflow-y-auto p-2"
         >
           <ContextNavigation />
         </div>
-
       </div>
     </aside>
   );

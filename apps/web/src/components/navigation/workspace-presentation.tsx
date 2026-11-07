@@ -1,11 +1,22 @@
-import { LocalNavigation } from "@/components/navigation/local-navigation";
+import
+{
+  Waypoints,
+} from "lucide-react";
+
+import
+{ 
+  LocalNavigation,
+} from "@/components/navigation/local-navigation";
 
 import
 {
   PresentationContextBar,
 } from "@/components/navigation/presentation-context-bar";
 
-import { DEMO_NAVIGATION_DATA } from "@/navigation/demo-navigation-data";
+import
+{
+  DEMO_NAVIGATION_DATA,
+} from "@/navigation/demo-navigation-data";
 
 import
 {
@@ -48,6 +59,7 @@ export function WorkspacePresentation(
         variant="workspace"
         contextType="Campaign"
         contextLabel={title}
+        contextIcon={Waypoints}
         navigation={<LocalNavigation location={location} />}
         actions={status}
       />

@@ -145,9 +145,9 @@ export function LocalNavigation(
   return (
     <nav
       aria-label="Local navigation"
-      className={`min-w-0 overflow-x-auto ${className ?? ""}`}
+      className={`w-full min-w-0 overflow-x-auto ${className ?? ""}`}
     >
-      <div className="flex min-w-max items-center gap-5">
+      <div className="flex w-max min-w-full items-center justify-end gap-5">
         {items.map((item) =>
         {
           const isCurrent = item.value === location.localView;

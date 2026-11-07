@@ -195,7 +195,14 @@
 
 :root[data-sidebar-state="collapsed"]
 {
-  --application-sidebar-width: 4rem;
+  --application-sidebar-width: 3rem;
+}
+
+:root[data-sidebar-state="collapsed"] [data-sidebar-header]
+{
+  justify-content: center;
+  padding-inline: 0.25rem;
+  border-bottom: none;
 }
 
 html.dark [data-appearance-light-only]

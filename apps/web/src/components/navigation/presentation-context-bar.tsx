@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 type PresentationContextBarVariant =
   | "explorer"
   | "workspace"
@@ -8,6 +10,7 @@ type PresentationContextBarProps =
   variant: PresentationContextBarVariant;
   contextType: string;
   contextLabel: string;
+  contextIcon: LucideIcon;
   navigation: React.ReactNode;
   actions?: React.ReactNode;
 };
@@ -17,6 +20,7 @@ export function PresentationContextBar(
     variant,
     contextType,
     contextLabel,
+    contextIcon: ContextIcon,
     navigation,
     actions,
   }: Readonly<PresentationContextBarProps>
@@ -27,28 +31,23 @@ export function PresentationContextBar(
       data-sticky-presentation-bar={variant}
       className="sticky top-0 z-20 h-14 border-b border-border bg-shell-content/95 backdrop-blur"
     >
-      <div className="mx-auto flex h-full w-full max-w-6xl items-center gap-4 px-8">
-        <div className="flex min-w-0 shrink-0 items-center gap-2">
-          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            {contextType}
-          </span>
-
-          <span
+      <div className="mx-auto flex h-full w-full max-w-6xl items-center gap-2 px-6">
+        <div className="flex min-w-24 flex-1 items-center gap-2">
+          <ContextIcon
             aria-hidden="true"
-            className="text-muted-foreground"
-          >
-            /
-          </span>
+            className="size-4 shrink-0 text-muted-foreground"
+          />
 
           <h1
             title={contextLabel}
-            className="max-w-56 truncate text-sm font-semibold"
+            aria-label={`${contextType}: ${contextLabel}`}
+            className="min-w-0 truncate whitespace-nowrap text-sm font-semibold"
           >
             {contextLabel}
           </h1>
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-[0_1_auto]">
           {navigation}
         </div>
 

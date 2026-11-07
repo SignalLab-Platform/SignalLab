@@ -26,6 +26,20 @@ jest.mock("next/navigation", () =>
   };
 });
 
+jest.mock("@/features/organizations/use-organizations", () =>
+{
+  return {
+    useOrganizations: () =>
+    {
+      return {
+        data: [],
+        isPending: false,
+        isError: false,
+      };
+    },
+  };
+});
+
 describe("AppSidebar", () =>
 {
   beforeEach(() =>

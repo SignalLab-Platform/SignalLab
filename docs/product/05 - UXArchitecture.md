@@ -141,21 +141,33 @@ Son contenu reste identique lors de toute navigation.
 
 ## 2.4 Sidebar
 
-La **Sidebar** permet de naviguer entre les différents contextes de SignalLab.
+La **Sidebar** constitue le navigateur contextuel principal de SignalLab.
 
-Elle représente la hiérarchie métier de l'application.
+En état **Expanded**, elle représente la hiérarchie métier de l'application et permet notamment d'accéder :
 
-Selon le contexte courant, elle affiche notamment :
+- au Personal Home ;
+- aux Organizations accessibles au User ;
+- aux Projects et Campaigns selon leur disponibilité ;
+- aux Participations du User.
 
-- les Organizations ;
-- les Projects ;
-- les Campaigns.
+Les Organizations sont présentées sous forme d'une arborescence développable. Plusieurs Organizations peuvent être développées simultanément.
 
-La **Sidebar** reflète toujours le contexte actuellement ouvert.
+La Sidebar indique le contexte courant et distingue la ressource active de ses ancêtres.
 
-Elle peut être réduite ou développée.
+Un filtre local permet de rechercher les Organizations par nom, sans modifier le contexte courant ni l'état d'expansion de l'arborescence.
 
-Son état est mémorisé entre les sessions.
+La Sidebar possède deux états :
+
+- **Expanded** : la navigation contextuelle est entièrement accessible.
+- **Collapsed** : la navigation est masquée et seul le contrôle permettant de développer la Sidebar reste visible.
+
+L'état Collapsed est un choix explicite du User pour privilégier l'espace de travail. Il n'ouvre aucun menu de navigation au survol et ne déclenche aucune expansion automatique.
+
+L'état Expanded ou Collapsed est mémorisé entre les sessions.
+
+La navigation vers une ressource développe automatiquement son Organization parente, sans empêcher le User de modifier manuellement l'état de l'arborescence.
+
+La réduction de la Sidebar ne détruit pas l'état de navigation ni les expansions existantes.
 
 ---
 
@@ -176,6 +188,26 @@ Le **Content** contient également :
 - la navigation locale ;
 - les actions métier ;
 - les informations de la ressource courante.
+
+Lorsqu'une ressource possède une navigation locale, le Content présente une barre contextuelle contenant :
+
+- un pictogramme représentant le type de contexte ;
+- le nom de la ressource courante ;
+- la navigation locale, alignée à droite ;
+- les actions disponibles pour cette ressource.
+
+L'identité du contexte possède un espace réservé afin que la longueur du nom de la ressource ne déplace pas la navigation locale.
+
+Les noms trop longs peuvent être tronqués visuellement, à condition que leur valeur complète reste accessible.
+
+Lorsque l'espace horizontal est insuffisant, la navigation locale peut défiler horizontalement sans rendre ses destinations inaccessibles.
+
+Les pictogrammes de référence sont :
+
+- Organization : `Building2` ;
+- Project : `Blocks` ;
+- Campaign : `Waypoints` ;
+- Participation : `ClipboardList`.
 
 ---
 
@@ -200,7 +232,7 @@ L'interface peut adapter sa présentation aux différentes tailles de fenêtres 
 Ces adaptations ne modifient jamais l'organisation logique de l'application :
 
 - le Header conserve son rôle global ;
-- la Sidebar conserve son rôle de navigation contextuelle ;
+- la Sidebar conserve sa responsabilité de navigation contextuelle en état Expanded et peut masquer cette navigation en état Collapsed afin de privilégier l'espace disponible pour le Content.
 - le Content conserve son rôle de zone de travail principale.
 
 Certains espacements, dimensions ou modes d'affichage peuvent être ajustés lorsque l'espace disponible diminue, à condition de préserver les responsabilités de chaque région.

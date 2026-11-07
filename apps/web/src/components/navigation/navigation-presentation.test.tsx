@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import { useCurrentUser } from "@/features/current-user/use-current-user";
+import { useOrganizations } from "@/features/organizations/use-organizations";
 
 import { NavigationPresentation } from "@/components/navigation/navigation-presentation";
 import { resolveNavigationLocation } from "@/navigation/navigation-resolver";
@@ -42,6 +43,7 @@ jest.mock("next/navigation", () =>
 });
 
 jest.mock("@/features/current-user/use-current-user");
+jest.mock("@/features/organizations/use-organizations");
 
 jest.mock(
   "@/features/organizations/organizations-personal-explorer",
@@ -78,9 +80,22 @@ describe("NavigationPresentation", () =>
       isPending: false,
       isError: false,
     } as unknown as ReturnType<typeof useCurrentUser>);
+
+    jest.mocked(useOrganizations).mockReturnValue(
+    {
+      data:
+      [
+        {
+          id: "demo-organization",
+          name: "Demo Organization",
+        },
+      ],
+      isPending: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useOrganizations>);
   });
 
-  it("renders an Explorer with Search, tabs, actions, and resources", () =>
+  it("renders an Organization Explorer with real identity, navigation, and empty resources", () =>
   {
     const location = resolveRequiredLocation(
       "/organizations/demo-organization/projects"
@@ -100,7 +115,7 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Demo Organization",
+        name: "Organization: Demo Organization",
       })
     ).toBeInTheDocument();
 
@@ -109,7 +124,7 @@ describe("NavigationPresentation", () =>
       {
         name: "Search Demo Organization",
       })
-    ).toBeInTheDocument();
+    ).toBeDisabled();
 
     expect(
       screen.getByRole("navigation",
@@ -126,11 +141,15 @@ describe("NavigationPresentation", () =>
     ).toBeDisabled();
 
     expect(
-      screen.getByRole("link",
+      screen.getByText("No resources to display")
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("link",
       {
         name: /Demo Project/,
       })
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
   });
 
   it("renders a compact Campaign Workspace identity and tabs", () =>
@@ -153,7 +172,7 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Demo Campaign",
+        name: "Campaign: Demo Campaign",
       })
     ).toBeInTheDocument();
 
@@ -193,7 +212,7 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Demo Participation",
+        name: "Participation: Demo Participation",
       })
     ).toBeInTheDocument();
 
