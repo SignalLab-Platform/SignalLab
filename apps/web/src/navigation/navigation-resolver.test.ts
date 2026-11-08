@@ -201,4 +201,57 @@ describe("navigation resolver", () =>
   {
     expect(resolveNavigationLocation("/organizations")).toBeNull();
   });
+
+  describe("Organization Administration navigation", () =>
+  {
+    it.each([
+      "members",
+      "invitations",
+      "settings",
+    ])("resolves the %s administration view", (view) =>
+    {
+      const location = resolveNavigationLocation(
+        `/organizations/demo-organization/administration/${view}`
+      );
+
+      expect(location).toMatchObject({
+        contextKind: "organization-administration",
+        contextKey: "organization-administration:demo-organization",
+        presentationModel: "organization-administration",
+        organizationId: "demo-organization",
+        localView: view,
+        hierarchy:
+        [
+          {
+            kind: "organization",
+            id: "demo-organization",
+          },
+        ],
+      });
+    });
+
+    it("rejects unknown administration views", () =>
+    {
+      expect(
+        resolveNavigationLocation(
+          "/organizations/demo-organization/administration/unknown"
+        )
+      ).toBeNull();
+    });
+
+    it("keeps Explorer and Administration contexts distinct", () =>
+    {
+      const explorer = resolveNavigationLocation(
+        "/organizations/demo-organization/projects"
+      );
+
+      const administration = resolveNavigationLocation(
+        "/organizations/demo-organization/administration/members"
+      );
+
+      expect(explorer?.contextKey).not.toBe(
+        administration?.contextKey
+      );
+    });
+  });
 });

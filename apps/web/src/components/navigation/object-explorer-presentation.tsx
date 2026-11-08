@@ -8,7 +8,25 @@ import
   Search,
 } from "lucide-react";
 
-import { LocalNavigation } from "@/components/navigation/local-navigation";
+import 
+{ 
+  LocalNavigation,
+} from "@/components/navigation/local-navigation";
+
+import 
+{ 
+  ContextBreadcrumb,
+} from "@/components/navigation/context-breadcrumb";
+
+import
+{
+  OrganizationAdministrationLink,
+} from "@/components/navigation/organization-administration-link";
+
+import
+{
+  buildOrganizationRoute,
+} from "@/navigation/navigation-routes";
 
 import
 {
@@ -41,13 +59,6 @@ type ObjectExplorerPresentationProps =
   location: ObjectExplorerLocation;
 };
 
-function getObjectExplorerContextType(location: ObjectExplorerLocation): string
-{
-  return location.contextKind === "organization"
-    ? "Organization"
-    : "Project";
-}
-
 export function ObjectExplorerPresentation(
   { location }: Readonly<ObjectExplorerPresentationProps>
 )
@@ -60,11 +71,6 @@ export function ObjectExplorerPresentation(
   {
     return item.id === location.organizationId;
   });
-
-  const contextIcon =
-    location.contextKind === "organization"
-      ? Building2
-      : Blocks;
 
   let title: string;
 
@@ -93,7 +99,40 @@ export function ObjectExplorerPresentation(
       .resources[location.contextKey]
       ?.explorerSearchQuery ?? "";
 
-  const contextType = getObjectExplorerContextType(location);
+  const breadcrumbItems = location.contextKind === "organization"
+    ? [
+        {
+          label: title,
+          icon: Building2,
+          action: (
+            <OrganizationAdministrationLink
+              organizationId={location.organizationId}
+              organizationName={title}
+            />
+          ),
+        },
+      ]
+    : [
+        {
+          label: organization?.name ?? location.organizationId,
+          href: buildOrganizationRoute(location.organizationId, "all"),
+          icon: Building2,
+          action: (
+            <OrganizationAdministrationLink
+              organizationId={location.organizationId}
+              organizationName={organization?.name ?? location.organizationId}
+            />
+          ),
+        },
+        {
+          label: title,
+          icon: Blocks,
+        },
+      ];
+
+  const backHref = location.contextKind === "organization"
+    ? "/home"
+    : buildOrganizationRoute(location.organizationId, "all");
 
   const actions = (
     <>
@@ -142,18 +181,17 @@ export function ObjectExplorerPresentation(
     <section className="min-h-full w-full">
       <PresentationContextBar
         variant="explorer"
-        contextType={contextType}
-        contextLabel={title}
-        contextIcon={contextIcon}
+        breadcrumb={
+          <ContextBreadcrumb
+            items={breadcrumbItems}
+            backHref={backHref}
+          />
+        }
         navigation={<LocalNavigation location={location} />}
         actions={actions}
       />
 
       <div className="mx-auto w-full max-w-6xl px-8 py-6">
-        <p className="mb-4 text-sm text-muted-foreground">
-          Resources in {title}
-        </p>
-
         <div className="rounded-xl border border-dashed bg-card p-8 text-center">
           <p className="font-medium">
             No resources to display

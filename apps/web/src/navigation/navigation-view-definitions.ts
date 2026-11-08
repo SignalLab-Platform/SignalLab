@@ -2,6 +2,7 @@ import type
 {
   CampaignView,
   OrganizationView,
+  OrganizationAdministrationView,
   ParticipationSection,
   ProjectView,
 } from "@/navigation/navigation-types";
@@ -29,6 +30,23 @@ export const ORGANIZATION_VIEW_DEFINITIONS: readonly NavigationViewDefinition<Or
   {
     value: "form-templates",
     label: "Form Templates",
+  },
+];
+
+export const ORGANIZATION_ADMINISTRATION_VIEW_DEFINITIONS:
+  readonly NavigationViewDefinition<OrganizationAdministrationView>[] =
+[
+  {
+    value: "members",
+    label: "Members",
+  },
+  {
+    value: "invitations",
+    label: "Invitations",
+  },
+  {
+    value: "settings",
+    label: "Settings",
   },
 ];
 

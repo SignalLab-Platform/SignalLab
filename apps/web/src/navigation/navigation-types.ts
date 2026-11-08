@@ -6,6 +6,16 @@ export const ORGANIZATION_VIEWS =
   "form-templates",
 ] as const;
 
+export const ORGANIZATION_ADMINISTRATION_VIEWS =
+[
+  "members",
+  "invitations",
+  "settings",
+] as const;
+
+export type OrganizationAdministrationView =
+  (typeof ORGANIZATION_ADMINISTRATION_VIEWS)[number];
+
 export const PROJECT_VIEWS =
 [
   "all",
@@ -42,6 +52,7 @@ export type ParticipationSection = (typeof PARTICIPATION_SECTIONS)[number];
 export type NavigationContextKind =
   | "home"
   | "organization"
+  | "organization-administration"
   | "project"
   | "campaign"
   | "participation";
@@ -56,6 +67,7 @@ export type NavigationPresentationModel =
   | "personal-hub"
   | "personal-explorer"
   | "object-explorer"
+  | "organization-administration"
   | "workspace"
   | "document";
 
@@ -64,6 +76,7 @@ export type NavigationOverlayKind = "analysis";
 export type NavigationContextKey =
   | "home"
   | `organization:${string}`
+  | `organization-administration:${string}`
   | `project:${string}`
   | `campaign:${string}`
   | `participation:${string}`;
@@ -96,6 +109,15 @@ export type OrganizationNavigationLocation = BaseNavigationLocation &
   localView: OrganizationView;
 };
 
+export type OrganizationAdministrationNavigationLocation =
+  BaseNavigationLocation &
+{
+  contextKind: "organization-administration";
+  presentationModel: "organization-administration";
+  organizationId: string;
+  localView: OrganizationAdministrationView;
+};
+
 export type ProjectNavigationLocation = BaseNavigationLocation &
 {
   contextKind: "project";
@@ -126,6 +148,7 @@ export type ParticipationNavigationLocation = BaseNavigationLocation &
 export type NavigationLocation =
   | HomeNavigationLocation
   | OrganizationNavigationLocation
+  | OrganizationAdministrationNavigationLocation
   | ProjectNavigationLocation
   | CampaignNavigationLocation
   | ParticipationNavigationLocation;

@@ -1014,25 +1014,58 @@ Adapter la Sidebar et la barre contextuelle du Content afin de garantir une navi
 
 ---
 
-## SL-029 — Créer l’Organization Explorer
+## SL-029 — Créer l’Organization Explorer et son espace Administration
 
 ### Description
 
-Créer l’Explorer avec Members, Invitations et Settings pour cette Milestone.
+Créer l’Organization Explorer et préparer les vues d’administration Members, Invitations et Settings. Étendre le header contextuel introduit en SL-028 à un modèle commun aux Explorers, avec fil d’Ariane hiérarchique et navigation locale adaptée au contexte. Les vues d’administration présentent les données réellement disponibles et préparent les contrôles de gestion, sans activer les mutations réservées aux Milestones suivantes.
+
+### Architecture du header contextuel
+
+- Le header commun aux Explorers comporte deux lignes compactes.
+- Première ligne : fil d’Ariane de la hiérarchie réelle des ressources (Organization / Project / Campaign / Resource, selon le rattachement effectif), avec segments ancêtres cliquables et flèche de retour vers le parent logique. Ne pas inventer de niveaux intermédiaires pour les ressources qui ne leur appartiennent pas.
+- Le nom de l’Organization dans le fil d’Ariane donne accès à son administration via une icône d’engrenage immédiatement à droite du nom.
+- Deuxième ligne : tabs de navigation locale à gauche ; Context Search et action contextuelle (par exemple Create resource) à droite, lorsque ces fonctionnalités sont disponibles dans le contexte courant. Les tabs ne disposent pas d’une ligne supplémentaire dédiée.
+- La navigation locale, la recherche et les actions s’adaptent au contexte courant sans créer de navigation parallèle dans la Sidebar.
+- Le contenu principal commence directement par les ressources, listes, formulaires ou Workspaces : aucun titre ou sous-titre répétant le fil d’Ariane et l’onglet actif.
+- Le modèle est réutilisable dans les futurs Explorers et Workspaces ; seules les tabs et les actions propres à chaque contexte changent.
+
+### Explorer et Administration
+
+- L’Organization Explorer utilise les tabs All / Projects / Measures / Form Templates.
+- L’engrenage ouvre l’administration de l’Organization, par défaut sur Members.
+- En mode Administration, le fil d’Ariane indique le contexte Organization / Administration ; les tabs Explorer sont remplacées par Members / Invitations / Settings, dans cet ordre.
+- Une flèche retour permet de quitter Administration et de revenir à l’Organization Explorer. Elle correspond à une navigation contextuelle explicite, et non à l’historique arbitraire du navigateur.
+- Les contrôles de recherche et les actions de création de ressources propres à l’Explorer ne sont pas affichés dans Administration ; des actions propres à l’administration pourront les remplacer lorsqu’elles seront implémentées.
+- URLs canoniques :
+  - Explorer : /organizations/{organizationId} (avec navigation locale par URL selon les conventions de l’application).
+  - Members : /organizations/{organizationId}/administration/members.
+  - Invitations : /organizations/{organizationId}/administration/invitations.
+  - Settings : /organizations/{organizationId}/administration/settings.
+
+### Préparation des vues Administration dans SL-029
+
+- Members : afficher les vrais OrganizationMembers, y compris les memberships Removed, avec identité, Role, statut et informations disponibles ; prévoir recherche et filtre par statut. Les commandes de retrait et de changement de Role sont visibles dans leur emplacement définitif mais désactivées jusqu’à SL-032. La consultation des membres exige un membership actif, sans Permission ManageMembers.
+- Invitations : préparer la structure de liste, les informations et contrôles prévus, ainsi que les états vides et d’indisponibilité. Tant que les données d’OrganizationInvitation ne sont pas implémentées, ne pas afficher d’invitations fictives ni présenter une absence de backend comme une liste réellement vide. La lecture et le cycle de vie seront intégrés à partir de SL-031 ; les commandes d’invitation et de gestion seront activées uniquement lors de l’implémentation de leurs cas d’usage et autorisations.
+- Settings : afficher les valeurs réelles disponibles de l’Organization et préparer les champs Name, Country, Description, Logo et Website prévus en SL-034. Les champs non encore pris en charge par la lecture/persistance doivent être signalés comme indisponibles, jamais remplis avec des valeurs fictives. Les contrôles d’édition et l’autosauvegarde restent désactivés jusqu’à SL-034.
+- Roles : les noms et Permissions des Roles existants peuvent être consultés par les membres actifs, sans permission de gestion. L’attribution d’un Role à un membre relève de ManageMembers (SL-032). La création, le renommage, la suppression et la modification des Permissions des Roles personnalisés, ainsi que la permission dédiée ManageRoles, sont post-MVP ; ne pas les introduire dans SL-029.
+- Les contrôles désactivés doivent communiquer clairement leur indisponibilité et ne doivent déclencher aucune mutation, ni suggérer qu’une sauvegarde a eu lieu.
 
 ### Critères d'acceptation
 
-- Recherche et états vides respectent UX Architecture.
-- La navigation locale possède ses URLs.
-- Les futures ressources peuvent s’y intégrer.
-- L'Organization Explorer réutilise la barre contextuelle et la Local Navigation introduites en SL-028.
+- La navigation hiérarchique, la flèche de retour, l’engrenage et le remplacement des tabs entre Explorer et Administration fonctionnent avec les URLs prévues.
+- La première ligne du header affiche le fil d’Ariane réel ; la seconde regroupe tabs, recherche et actions contextuelles, sans en-tête de contenu redondant.
+- La navigation locale possède ses URLs ; les futures ressources peuvent s’y intégrer sans modifier la structure commune.
 - Les ressources réellement disponibles sont présentées dans les vues correspondantes, sans données de démonstration.
-- La Context Search porte sur les ressources de l'Organization affichées dans l'Explorer ; elle ne modifie ni le filtre ni l'expansion de la Sidebar.
-- Les états vides distinguent l'absence de ressources de l'indisponibilité temporaire d'une fonctionnalité.
+- La Context Search porte sur les ressources de l’Organization affichées dans l’Explorer ; elle ne modifie ni le filtre ni l’expansion de la Sidebar.
+- Les états vides distinguent l’absence de ressources de l’indisponibilité temporaire d’une fonctionnalité.
+- Members et Roles utilisent les données réelles et respectent les règles de lecture par membership actif, indépendamment des permissions de mutation.
+- Les vues Members, Invitations et Settings sont structurées et leurs fonctions de mutation sont désactivées jusqu’aux Milestones prévues.
+- Les états de chargement, d’erreur et d’indisponibilité, ainsi que l’accessibilité clavier et les libellés des contrôles, sont pris en charge.
 
 ### Definition of Done
 
-- Créer l’Organization Explorer validé par les tests et la documentation.
+- Organization Explorer et espace Administration navigables, avec header contextuel commun, vues de lecture/préparation, tests et documentation validés.
 
 ---
 

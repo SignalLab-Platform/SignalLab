@@ -145,6 +145,12 @@ SignalLab lui demande uniquement les informations minimales nécessaires à sa c
 - **Nom** *(obligatoire)*
 - **Pays** *(obligatoire)*
 
+Avant la confirmation de la création, SignalLab informe le User que son nom de profil, lorsqu'il est renseigné, et l'adresse email associée à son compte seront visibles par les membres autorisés à consulter l'administration de l'Organization.
+
+Cette information ne nécessite aucune confirmation distincte. La création de l'Organization reste conditionnée uniquement aux champs obligatoires déjà définis.
+
+Le prénom et le nom du User restent facultatifs.
+
 Après validation, SignalLab crée la nouvelle `Organization`.
 
 Le `User` devient automatiquement le premier membre de cette `Organization` avec le rôle de `Owner`.
@@ -394,6 +400,12 @@ Une fois authentifié, SignalLab le redirige automatiquement vers l'`Organizatio
 SignalLab vérifie que l'`OrganizationInvitation` est valide et qu'elle est bien destinée au `User` authentifié.
 
 SignalLab présente les informations essentielles de l'`Organization`, ainsi que le rôle qui sera attribué au `User`.
+
+Avant la confirmation, SignalLab informe le User que son nom de profil, lorsqu'il est renseigné, et l'adresse email associée à son compte seront visibles par les membres autorisés à consulter l'administration de l'Organization.
+
+Cette information ne nécessite aucune confirmation distincte.
+
+Le prénom et le nom du User restent facultatifs.
 
 Le `User` accepte l'`OrganizationInvitation`.
 

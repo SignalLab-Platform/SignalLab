@@ -23,6 +23,23 @@ public sealed class UserRepository : IUserRepository
                 cancellationToken);
     }
 
+    public async Task<IReadOnlyList<User>> GetByIdsAsync(
+        IReadOnlyCollection<UserId> userIds,
+        CancellationToken cancellationToken)
+    {
+        if (userIds.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = userIds.Distinct().ToArray();
+
+        return await dbContext.Users
+            .AsNoTracking()
+            .Where(user => ids.Contains(user.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<User?> GetByExternalIdentityIdAsync(
         string externalIdentityId,
         CancellationToken cancellationToken)

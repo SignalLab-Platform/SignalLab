@@ -1,4 +1,3 @@
-
 using SignalLab.Domain.Organizations;
 using SignalLab.Domain.Users;
 using SignalLab.Application.Users;

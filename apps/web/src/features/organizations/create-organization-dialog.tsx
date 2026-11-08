@@ -1,7 +1,8 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
+
+import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import
@@ -147,12 +148,25 @@ export function CreateOrganizationDialog(
               type="url"
               value={website}
               onChange={(event) =>
-              {
-                setWebsite(event.target.value);
-              }}
+            {
+              setWebsite(event.target.value);
+            }}
               placeholder="https://example.com"
               disabled={createOrganization.isPending}
             />
+          </div>
+
+          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <Info
+              aria-hidden="true"
+              className="mt-0.5 size-4 shrink-0"
+            />
+
+            <p>
+              Your profile name (if provided) and account email address
+              will be visible to members authorized to view this
+              Organization&apos;s administration.
+            </p>
           </div>
 
           {createOrganization.isError && (

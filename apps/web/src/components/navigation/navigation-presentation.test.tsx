@@ -115,9 +115,23 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Organization: Demo Organization",
+        name: "Demo Organization",
       })
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("navigation",
+      {
+        name: "Context breadcrumb",
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link",
+      {
+        name: "Go to parent context",
+      })
+    ).toHaveAttribute("href", "/home");
 
     expect(
       screen.getByRole("searchbox",
@@ -172,9 +186,19 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Campaign: Demo Campaign",
+        name: "Demo Campaign",
       })
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link",
+      {
+        name: "Go to parent context",
+      })
+    ).toHaveAttribute(
+      "href",
+      "/organizations/demo-organization/projects/demo-project/all"
+    );
 
     expect(
       screen.getByRole("link",
@@ -212,7 +236,7 @@ describe("NavigationPresentation", () =>
       screen.getByRole("heading",
       {
         level: 1,
-        name: "Participation: Demo Participation",
+        name: "Demo Participation",
       })
     ).toBeInTheDocument();
 

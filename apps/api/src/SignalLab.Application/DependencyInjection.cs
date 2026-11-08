@@ -19,6 +19,10 @@ public static class DependencyInjection
         services.AddScoped<GetStoredFileDownloadUrl>();
         services.AddScoped<CreateOrganization>();
         services.AddScoped<GetCurrentUserOrganizations>();
+        services.AddScoped<OrganizationAccessService>();
+        services.AddScoped<GetOrganization>();
+        services.AddScoped<GetOrganizationMembers>();
+        services.AddScoped<GetOrganizationRoles>();
 
         return services;
     }
