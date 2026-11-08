@@ -1,5 +1,8 @@
 import { DocumentPresentation } from "@/components/navigation/document-presentation";
 import { ObjectExplorerPresentation } from "@/components/navigation/object-explorer-presentation";
+import { OrganizationAdministrationPresentation } from "@/components/navigation/organization-administration-presentation";
+import { PersonalHomePresentation } from "@/components/navigation/personal-home-presentation";
+import { WorkspacePresentation } from "@/components/navigation/workspace-presentation";
 
 import
 {
@@ -10,9 +13,6 @@ import
 {
   NavigationStateRecorder,
 } from "@/components/navigation/navigation-state-recorder";
-
-import { PersonalHomePresentation } from "@/components/navigation/personal-home-presentation";
-import { WorkspacePresentation } from "@/components/navigation/workspace-presentation";
 
 import type
 {
@@ -41,47 +41,42 @@ function renderPresentation(
     case "project":
     {
       return (
-        <ObjectExplorerPresentation
-          location={location}
-        />
+        <ObjectExplorerPresentation location={location} />
+      );
+    }
+
+    case "organization-administration":
+    {
+      return (
+        <OrganizationAdministrationPresentation location={location} />
       );
     }
 
     case "campaign":
     {
       return (
-        <WorkspacePresentation
-          location={location}
-        />
+        <WorkspacePresentation location={location} />
       );
     }
 
     case "participation":
     {
       return (
-        <DocumentPresentation
-          location={location}
-        />
+        <DocumentPresentation location={location} />
       );
     }
   }
 }
 
 export function NavigationPresentation(
-  {
-    location,
-  }: Readonly<NavigationPresentationProps>
+  { location }: Readonly<NavigationPresentationProps>
 )
 {
   return (
     <>
-      <NavigationStateRecorder
-        location={location}
-      />
+      <NavigationStateRecorder location={location} />
 
-      <NavigationScrollRestoration
-        location={location}
-      />
+      <NavigationScrollRestoration location={location} />
 
       {renderPresentation(location)}
     </>

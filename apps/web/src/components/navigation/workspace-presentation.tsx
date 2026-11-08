@@ -1,6 +1,8 @@
 import
 {
   Waypoints,
+  Building2,
+  Blocks,
 } from "lucide-react";
 
 import
@@ -29,6 +31,22 @@ import type
   CampaignNavigationLocation,
 } from "@/navigation/navigation-types";
 
+import 
+{ 
+  ContextBreadcrumb,
+} from "@/components/navigation/context-breadcrumb";
+
+import
+{
+  OrganizationAdministrationLink,
+} from "@/components/navigation/organization-administration-link";
+
+import
+{
+  buildOrganizationRoute,
+  buildProjectRoute,
+} from "@/navigation/navigation-routes";
+
 type WorkspacePresentationProps =
 {
   location: CampaignNavigationLocation;
@@ -53,13 +71,50 @@ export function WorkspacePresentation(
     </span>
   );
 
+  const breadcrumbItems =
+  [
+    {
+      label: location.organizationId,
+      href: buildOrganizationRoute(location.organizationId, "all"),
+      icon: Building2,
+      action: (
+        <OrganizationAdministrationLink
+          organizationId={location.organizationId}
+          organizationName={location.organizationId}
+        />
+      ),
+    },
+    {
+      label: location.projectId,
+      href: buildProjectRoute(
+        location.organizationId,
+        location.projectId,
+        "all"
+      ),
+      icon: Blocks,
+    },
+    {
+      label: title,
+      icon: Waypoints,
+    },
+  ];
+
+  const backHref = buildProjectRoute(
+    location.organizationId,
+    location.projectId,
+    "all"
+  );
+
   return (
     <section className="min-h-full w-full">
       <PresentationContextBar
         variant="workspace"
-        contextType="Campaign"
-        contextLabel={title}
-        contextIcon={Waypoints}
+        breadcrumb={
+          <ContextBreadcrumb
+            items={breadcrumbItems}
+            backHref={backHref}
+          />
+        }
         navigation={<LocalNavigation location={location} />}
         actions={status}
       />

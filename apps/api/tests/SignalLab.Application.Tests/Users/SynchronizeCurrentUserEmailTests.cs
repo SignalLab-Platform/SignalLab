@@ -191,6 +191,13 @@ public sealed class SynchronizeCurrentUserEmailTests
                     user => user.Id == userId));
         }
 
+        public Task<IReadOnlyList<User>> GetByIdsAsync(
+            IReadOnlyCollection<UserId> userIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task<User?> GetByExternalIdentityIdAsync(
             string externalIdentityId,
             CancellationToken cancellationToken)

@@ -30,6 +30,8 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
 
     public string ExternalIdentityEmail { get; set; } = TestEmail;
 
+    public string ExternalIdentityUserId { get; set; } = TestExternalUserId;
+
     public ObjectMetadata? ObjectStorageMetadata { get; set; } =
         new ObjectMetadata(
             "image/png",
@@ -84,7 +86,7 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
             services.AddScoped<IExternalIdentityProvider>(
                 _ => new TestExternalIdentityProvider(
                     () => new ExternalIdentity(
-                        TestExternalUserId,
+                        ExternalIdentityUserId,
                         ExternalIdentityEmail),
                     () => ExternalIdentityProviderCallCount++));
 
@@ -151,8 +153,10 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     public async Task ResetTestUserAsync()
     {
         await Database.ResetUserAsync(TestExternalUserId);
+        await Database.ResetUserAsync("user_test_456");
 
         ExternalIdentityProviderCallCount = 0;
+        ExternalIdentityUserId = TestExternalUserId;
         ExternalIdentityEmail = TestEmail;
 
         ObjectStorageMetadata = new ObjectMetadata(

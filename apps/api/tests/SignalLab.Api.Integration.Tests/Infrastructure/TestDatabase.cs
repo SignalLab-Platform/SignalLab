@@ -164,4 +164,53 @@ public sealed class TestDatabase
 
         await transaction.CommitAsync();
     }
+
+    public async Task AddOrganizationMemberAsync(
+        OrganizationId organizationId,
+        UserId userId,
+        string roleName)
+    {
+        using var scope = services.CreateScope();
+
+        var dbContext = scope.ServiceProvider
+            .GetRequiredService<SignalLabDbContext>();
+
+        var organization = await dbContext.Organizations
+            .Include(organization => organization.Roles)
+            .Include(organization => organization.Members)
+            .AsSplitQuery()
+            .SingleAsync(organization => organization.Id == organizationId);
+
+        var role = organization.Roles.Single(
+            role => role.Name == roleName);
+
+        organization.AddMember(
+            userId,
+            role.Id,
+            DateTimeOffset.UtcNow);
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task RemoveOrganizationMemberAsync(
+        OrganizationId organizationId,
+        UserId userId)
+    {
+        using var scope = services.CreateScope();
+
+        var dbContext = scope.ServiceProvider
+            .GetRequiredService<SignalLabDbContext>();
+
+        var organization = await dbContext.Organizations
+            .Include(organization => organization.Roles)
+            .Include(organization => organization.Members)
+            .AsSplitQuery()
+            .SingleAsync(organization => organization.Id == organizationId);
+
+        organization.RemoveMember(
+            userId,
+            DateTimeOffset.UtcNow);
+
+        await dbContext.SaveChangesAsync();
+    }
 }

@@ -165,7 +165,7 @@ describe("ContextNavigation", () =>
     ).toHaveAttribute("data-context-status", "available");
   });
 
-  it("identifies the Organization as an ancestor of a Campaign", () =>
+  it("identifies the Organization as current within a Campaign", () =>
   {
     mockedUsePathname.mockReturnValue(
       "/organizations/organization-alpha/projects/project-one/campaigns/campaign-one/results"
@@ -178,7 +178,7 @@ describe("ContextNavigation", () =>
       {
         name: "Studio Alpha",
       })
-    ).toHaveAttribute("data-context-status", "ancestor");
+    ).toHaveAttribute("data-context-status", "current");
 
     expect(
       screen.getByRole("link",
@@ -481,7 +481,7 @@ describe("ContextNavigation", () =>
       {
         name: "Studio Beta",
       })
-    ).toHaveAttribute("data-context-status", "ancestor");
+    ).toHaveAttribute("data-context-status", "current");
   });
 
   it("allows manually collapsing an automatically expanded Organization", () =>
@@ -522,7 +522,7 @@ describe("ContextNavigation", () =>
       {
         name: "Studio Beta",
       })
-    ).toHaveAttribute("data-context-status", "ancestor");
+    ).toHaveAttribute("data-context-status", "current");
   });
 
   it("allows reopening an automatically expanded Organization after manual collapse", () =>

@@ -1,4 +1,3 @@
-
 using SignalLab.Application.Storage;
 
 namespace SignalLab.Api.Integration.Tests.Infrastructure;

@@ -2,6 +2,7 @@ import
 {
   buildCampaignRoute,
   buildOrganizationRoute,
+  buildOrganizationAdministrationRoute,
   buildParticipationRoute,
   buildProjectRoute,
   HOME_ROUTE,
@@ -11,6 +12,7 @@ import
 {
   CAMPAIGN_VIEWS,
   ORGANIZATION_VIEWS,
+  ORGANIZATION_ADMINISTRATION_VIEWS,
   PARTICIPATION_SECTIONS,
   PROJECT_VIEWS,
 } from "@/navigation/navigation-types";
@@ -150,6 +152,47 @@ function resolveOrganizationLocation(
     contextKind: "organization",
     contextKey: `organization:${organizationId}`,
     presentationModel: "object-explorer",
+    organizationId,
+    localView: view,
+    hierarchy:
+    [
+      {
+        kind: "organization",
+        id: organizationId,
+      },
+    ],
+  };
+}
+
+function resolveOrganizationAdministrationLocation(
+  segments: string[]
+): NavigationLocation | null
+{
+  if (
+    segments.length !== 4 ||
+    segments[0] !== "organizations" ||
+    segments[2] !== "administration"
+  )
+  {
+    return null;
+  }
+
+  const organizationId = segments[1];
+  const view = segments[3];
+
+  if (!isAllowedValue(view, ORGANIZATION_ADMINISTRATION_VIEWS))
+  {
+    return null;
+  }
+
+  return {
+    pathname: buildOrganizationAdministrationRoute(
+      organizationId,
+      view
+    ),
+    contextKind: "organization-administration",
+    contextKey: `organization-administration:${organizationId}`,
+    presentationModel: "organization-administration",
     organizationId,
     localView: view,
     hierarchy:
@@ -314,6 +357,7 @@ export function resolveNavigationLocation(
   [
     resolveHomeLocation,
     resolveOrganizationLocation,
+    resolveOrganizationAdministrationLocation,
     resolveProjectLocation,
     resolveCampaignLocation,
     resolveParticipationLocation,

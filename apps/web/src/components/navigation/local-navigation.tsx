@@ -3,6 +3,7 @@ import Link from "next/link";
 import
 {
   buildCampaignRoute,
+  buildOrganizationAdministrationRoute,
   buildOrganizationRoute,
   buildProjectRoute,
 } from "@/navigation/navigation-routes";
@@ -10,6 +11,7 @@ import
 import
 {
   CAMPAIGN_VIEW_DEFINITIONS,
+  ORGANIZATION_ADMINISTRATION_VIEW_DEFINITIONS,
   ORGANIZATION_VIEW_DEFINITIONS,
   PROJECT_VIEW_DEFINITIONS,
 } from "@/navigation/navigation-view-definitions";
@@ -18,6 +20,7 @@ import type
 {
   CampaignNavigationLocation,
   NavigationLocation,
+  OrganizationAdministrationNavigationLocation,
   OrganizationNavigationLocation,
   ProjectNavigationLocation,
 } from "@/navigation/navigation-types";
@@ -45,6 +48,20 @@ function buildOrganizationItems(
       value: definition.value,
       label: definition.label,
       href: buildOrganizationRoute(location.organizationId, definition.value),
+    };
+  });
+}
+
+function buildOrganizationAdministrationItems(
+  location: OrganizationAdministrationNavigationLocation
+): LocalNavigationItem[]
+{
+  return ORGANIZATION_ADMINISTRATION_VIEW_DEFINITIONS.map((definition) =>
+  {
+    return {
+      value: definition.value,
+      label: definition.label,
+      href: buildOrganizationAdministrationRoute(location.organizationId, definition.value),
     };
   });
 }
@@ -97,6 +114,11 @@ function buildLocalNavigationItems(
       return buildOrganizationItems(location);
     }
 
+    case "organization-administration":
+    {
+      return buildOrganizationAdministrationItems(location);
+    }
+
     case "project":
     {
       return buildProjectItems(location);
@@ -118,7 +140,7 @@ function buildLocalNavigationItems(
 function getLinkClassName(isCurrent: boolean): string
 {
   const baseClassName =
-    "inline-flex h-10 items-center border-b-2 px-0.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+    "inline-flex h-12 items-center border-b-2 px-0.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   if (isCurrent)
   {
@@ -147,7 +169,7 @@ export function LocalNavigation(
       aria-label="Local navigation"
       className={`w-full min-w-0 overflow-x-auto ${className ?? ""}`}
     >
-      <div className="flex w-max min-w-full items-center justify-end gap-5">
+      <div className="flex w-max min-w-full items-center justify-start gap-5">
         {items.map((item) =>
         {
           const isCurrent = item.value === location.localView;

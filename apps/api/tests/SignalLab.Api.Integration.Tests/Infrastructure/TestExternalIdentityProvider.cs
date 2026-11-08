@@ -1,4 +1,3 @@
-
 using SignalLab.Application.Identity;
 
 namespace SignalLab.Api.Integration.Tests.Infrastructure;

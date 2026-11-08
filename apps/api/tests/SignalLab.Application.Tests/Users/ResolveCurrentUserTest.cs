@@ -100,6 +100,13 @@ public sealed class ResolveCurrentUserTests
                     : null);
         }
 
+        public Task<IReadOnlyList<User>> GetByIdsAsync(
+            IReadOnlyCollection<UserId> userIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task<User?> GetByExternalIdentityIdAsync(
             string externalIdentityId,
             CancellationToken cancellationToken)

@@ -413,6 +413,13 @@ public sealed class CompleteAvatarUploadTests
             return Task.FromResult<User?>(user);
         }
 
+        public Task<IReadOnlyList<User>> GetByIdsAsync(
+            IReadOnlyCollection<UserId> userIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task<User?> GetByExternalIdentityIdAsync(
             string externalIdentityId,
             CancellationToken cancellationToken)

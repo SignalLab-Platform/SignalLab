@@ -5,6 +5,11 @@ import
 
 import
 {
+  ContextBreadcrumb,
+} from "@/components/navigation/context-breadcrumb";
+
+import
+{
   DocumentTableOfContents,
 } from "@/components/navigation/document-table-of-contents";
 
@@ -58,9 +63,17 @@ export function DocumentPresentation(
     <article className="min-h-full w-full">
       <PresentationContextBar
         variant="document"
-        contextType="Participation"
-        contextLabel={title}
-        contextIcon={ClipboardList}
+        breadcrumb={
+          <ContextBreadcrumb
+            items={[
+              {
+                label: title,
+                icon: ClipboardList,
+              },
+            ]}
+            backHref="/home"
+          />
+        }
         navigation={
           <DocumentTableOfContents location={location} />
         }

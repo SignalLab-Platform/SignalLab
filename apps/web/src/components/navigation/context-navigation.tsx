@@ -56,7 +56,6 @@ type ContextNavigationKind =
 
 type ContextNavigationStatus =
   | "current"
-  | "ancestor"
   | "available";
 
 type ContextNavigationItem =
@@ -97,22 +96,16 @@ function getContextNavigationStatus(
     case "organization":
     {
       if (
-        location.contextKind === "organization" &&
-        location.organizationId === item.organizationId
-      )
-      {
-        return "current";
-      }
-
-      if (
         (
+          location.contextKind === "organization" ||
+          location.contextKind === "organization-administration" ||
           location.contextKind === "project" ||
           location.contextKind === "campaign"
         ) &&
         location.organizationId === item.organizationId
       )
       {
-        return "ancestor";
+        return "current";
       }
 
       return "available";
@@ -130,11 +123,6 @@ function getItemClassName(
   if (status === "current")
   {
     return `${baseClassName} border-primary/40 bg-sidebar-accent text-sidebar-accent-foreground shadow-sm before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-primary`;
-  }
-
-  if (status === "ancestor")
-  {
-    return `${baseClassName} text-sidebar-foreground ring-1 ring-inset ring-sidebar-foreground/25 hover:bg-sidebar-accent/60`;
   }
 
   return `${baseClassName} text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground`;
@@ -278,6 +266,7 @@ export function ContextNavigation()
 
   const activeOrganizationId =
     location?.contextKind === "organization" ||
+    location?.contextKind === "organization-administration" ||
     location?.contextKind === "project" ||
     location?.contextKind === "campaign"
       ? location.organizationId

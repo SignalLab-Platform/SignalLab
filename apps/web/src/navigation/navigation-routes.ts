@@ -2,6 +2,7 @@ import type
 {
   CampaignView,
   OrganizationView,
+  OrganizationAdministrationView,
   ParticipationSection,
   ProjectView,
 } from "@/navigation/navigation-types";
@@ -34,6 +35,19 @@ export function buildOrganizationRoute(
   );
 
   return `/organizations/${encodedOrganizationId}/${view}`;
+}
+
+export function buildOrganizationAdministrationRoute(
+  organizationId: string,
+  view: OrganizationAdministrationView
+): string
+{
+  const encodedOrganizationId = encodeRouteSegment(
+    organizationId,
+    "organizationId"
+  );
+
+  return `/organizations/${encodedOrganizationId}/administration/${view}`;
 }
 
 export function buildProjectRoute(

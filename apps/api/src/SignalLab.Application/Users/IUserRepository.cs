@@ -8,6 +8,10 @@ public interface IUserRepository
         UserId userId,
         CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<User>> GetByIdsAsync(
+        IReadOnlyCollection<UserId> userIds,
+        CancellationToken cancellationToken);
+
     Task<User?> GetByExternalIdentityIdAsync(
         string externalIdentityId,
         CancellationToken cancellationToken);
