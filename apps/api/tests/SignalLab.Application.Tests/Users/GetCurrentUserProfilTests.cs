@@ -1,5 +1,6 @@
 using SignalLab.Application.Users;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Users;
 
@@ -36,14 +37,12 @@ public sealed class GetCurrentUserProfileTests
 
         var userId = UserId.New();
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            useCase.ExecuteAsync(
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(
+            () => useCase.ExecuteAsync(
                 userId,
                 CancellationToken.None));
 
-        Assert.Contains(
-            userId.Value.ToString(),
-            exception.Message);
+        Assert.Equal(UserErrorCodes.UserNotFound, exception.Code);
     }
 
     private sealed class FakeUserRepository : IUserRepository

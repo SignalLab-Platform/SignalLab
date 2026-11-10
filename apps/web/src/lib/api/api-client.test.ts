@@ -4,6 +4,11 @@ import
   apiPost,
 } from "@/lib/api/api-client";
 
+import
+{
+  ApiError
+} from "@/lib/api/api-error";
+
 describe("apiGet", () =>
 {
   const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -180,5 +185,83 @@ describe("apiPost", () =>
     ).rejects.toThrow(
       "SignalLab API request failed with status 400.",
     );
+  });
+
+  it("preserves the API problem details error code", async () =>
+  {
+    jest.mocked(global.fetch).mockResolvedValue(
+      {
+        ok: false,
+        status: 409,
+        json: jest.fn().mockResolvedValue(
+        {
+          code: "organization_invitation_already_pending",
+          detail: "An invitation is already pending.",
+        }),
+      } as unknown as Response
+    );
+
+    let capturedError: unknown;
+
+    try
+    {
+      await apiPost(
+        "/organizations/organization-1/invitations",
+        {
+          email: "user@example.com",
+          roleId: "role-1",
+          duration: 7,
+        },
+        {
+          token: "test-token",
+        }
+      );
+    }
+    catch (error)
+    {
+      capturedError = error;
+    }
+
+    expect(capturedError).toBeInstanceOf(ApiError);
+
+    const apiError = capturedError as ApiError;
+
+    expect(apiError.status).toBe(409);
+    expect(apiError.code).toBe("organization_invitation_already_pending");
+    expect(apiError.detail).toBe("An invitation is already pending.");
+  });
+
+  it("sends a bodyless POST without Content-Type", async () =>
+  {
+    const response =
+    {
+      ok: true,
+      status: 200,
+    } as Response;
+
+    jest.mocked(global.fetch).mockResolvedValue(response);
+
+    const result = await apiPost(
+      "/organization-invitations/invitation-1/accept",
+      undefined,
+      {
+        token: "test-token",
+      }
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.example.test/organization-invitations/invitation-1/accept",
+      {
+        method: "POST",
+        headers:
+        {
+          Authorization: "Bearer test-token",
+          Accept: "application/json",
+        },
+        signal: undefined,
+      }
+    );
+
+    expect(result).toBe(response);
   });
 });

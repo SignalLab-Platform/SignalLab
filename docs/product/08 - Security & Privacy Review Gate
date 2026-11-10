@@ -1,0 +1,37 @@
+# SignalLab — Security & Privacy Review Gate
+
+## Objectif
+
+Une revue courte des risques est obligatoire **au démarrage de chaque Milestone**, avant les choix d'API, d'UX et d'implémentation. Elle évite de repousser systématiquement les questions de confidentialité en fin de développement.
+
+## Revue de début de Milestone
+
+Pour chaque fonctionnalité ou endpoint ajouté/modifié, établir :
+
+1. Acteurs, identités, données personnelles et ressources concernées.
+2. Permissions côté serveur et règles de gouvernance ; accès à une ressource d'une autre Organization ou d'un autre User.
+3. Informations inférables à partir des statuts HTTP, messages d'erreur, recherches, notifications, compteurs et identifiants.
+4. Risques de recoupement : filtres, populations réduites, comparaisons, scores MAP, exports.
+5. Possibilités d'automatisation, de création de comptes et de contournement des quotas.
+6. Révocations, expiration, changements de rôles, consentement, changement de session.
+7. Tests positifs/négatifs à prévoir ; risques résiduels explicitement acceptés ou reportés.
+
+Une rubrique concise `Security & Privacy Review` est ajoutée à la spécification de Milestone avec **risque, règle, contrôle et test**, puis révisée avant le commit.
+
+## Critères avant commit / staging
+
+- Vérifier les droits sur chaque ressource, y compris inter-Organization et inter-User.
+- Vérifier qu'une erreur et un log ne divulguent pas de données personnelles non nécessaires.
+- Vérifier les restrictions anti-abus pour échecs, réussites, concurrence et différents comptes.
+- Vérifier la cohérence Domain Model, API, frontend et migration.
+- Exécuter les tests et builds globaux, puis `git diff --check` et la revue des fichiers non suivis.
+- Noter séparément les validations réelles impossibles avant staging.
+
+## SL-031 — décisions
+
+- Les invitations ciblent des utilisateurs **déjà inscrits**, identifiés par email exact.
+- `ManageMembers` permet d'inviter un `Member` ou un `Administrator`. L'attribution du rôle `Owner` par invitation requiert en plus que l'invitant soit un `Owner` actif.
+- Restreindre le débit de création d'invitations par identité et par Organization ; compter également les tentatives échouées, tester le `429` et prévoir un moyen opérationnel de suspendre les abus.
+- Afficher des erreurs non inutilement révélatrices et minimiser les données personnelles dans les journaux.
+- **Risque résiduel accepté uniquement pour le staging / pilote contrôlé :** tant qu'une adresse inscrite peut donner une invitation créée et une adresse inconnue une réponse différente, l'existence du compte reste inférable. La limitation de débit ne supprime pas l'énumération ciblée. Décision spécifique requise avant ouverture générale.
+- Ne pas inclure dans SL-031 la prise en charge des non-inscrits, le moteur de confidentialité analytique ou le réseau social d'Organizations.

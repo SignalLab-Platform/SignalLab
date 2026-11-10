@@ -41,6 +41,15 @@ jest.mock("@/features/organizations/use-organizations", () =>
   };
 });
 
+jest.mock("@/components/notifications/notification-trigger", () =>
+({
+  NotificationTrigger: () => (
+    <button type="button" aria-label="Notifications">
+      Notifications
+    </button>
+  ),
+}));
+
 describe("AppShell", () =>
 {
   beforeEach(() =>

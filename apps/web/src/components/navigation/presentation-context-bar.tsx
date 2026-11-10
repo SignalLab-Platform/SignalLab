@@ -1,8 +1,3 @@
-type PresentationContextBarVariant =
-  | "explorer"
-  | "workspace"
-  | "document";
-
 type PresentationContextBarProps =
 {
   variant: "explorer" | "workspace" | "document";

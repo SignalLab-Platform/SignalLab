@@ -24,6 +24,22 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     public const string TestExternalUserId = "user_test_123";
     public const string TestEmail = "user@example.com";
 
+    private readonly int invitationUserLimit;
+    private readonly int invitationOrganizationLimit;
+
+    public SignalLabApiFactory()
+        : this(10000, 10000)
+    {
+    }
+
+    internal SignalLabApiFactory(
+        int invitationUserLimit,
+        int invitationOrganizationLimit)
+    {
+        this.invitationUserLimit = invitationUserLimit;
+        this.invitationOrganizationLimit = invitationOrganizationLimit;
+    }
+
     internal TestJwtTokenFactory TokenFactory { get; } = new();
 
     public int ExternalIdentityProviderCallCount { get; private set; }
@@ -42,6 +58,14 @@ public sealed class SignalLabApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
+
+        builder.UseSetting(
+            "OrganizationInvitations:RateLimiting:UserPermitLimit",
+            invitationUserLimit.ToString());
+
+        builder.UseSetting(
+            "OrganizationInvitations:RateLimiting:OrganizationPermitLimit",
+            invitationOrganizationLimit.ToString());
 
         builder.UseSetting(
             "ConnectionStrings:Postgres",

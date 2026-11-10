@@ -98,6 +98,23 @@ Aucune donnée métier n'est partagée entre deux Organizations.
 
 ---
 
+#### Invariants transversaux de protection de l'identité
+
+Les règles suivantes s'appliquent aux accès directs, indirects ou dérivés, qu'ils proviennent de l'interface, de l'API, d'un lien, d'une notification ou d'une analyse.
+
+- Connaître un identifiant ou une URL ne donne jamais accès à une ressource. Les autorisations sont vérifiées côté serveur sur la ressource et son Organization.
+- Une relation de Membership, de Participation ou d'abonnement (post-MVP) ne donne jamais automatiquement accès au profil global privé d'un User.
+- Les réponses et représentations exposent uniquement les données personnelles nécessaires à l'usage autorisé. Le droit de consulter une Submission n'implique pas l'accès à toutes les données identifiantes du Participant.
+- Les opérations de recherche et d'invitation de User doivent limiter l'énumération de comptes et les abus automatisés ; les limites résiduelles doivent être documentées.
+- Les analyses, filtres, segmentations et comparaisons ne peuvent contourner les règles de confidentialité des données sources ni faciliter la réidentification par petits groupes ou différences entre agrégats.
+- Les règles de partage du MAPProfile s'appliquent aussi aux analyses dérivées et à leurs segments.
+- La publication d'une Organization ou d'une CampaignAnnouncement (post-MVP) ne rend jamais publiquement visibles ses Memberships, Participants, Campaigns privées ni ses données de recherche. La visibilité des abonnements est définie explicitement.
+- Une Notification ne confère aucune autorisation sur sa cible. Les données mises en cache restent isolées entre sessions authentifiées de User différents.
+
+La protection concrète de ces invariants est vérifiée au début de chaque Milestone qui introduit ou modifie les parcours concernés.
+
+---
+
 #### FormTemplate et CampaignForm
 
 Un FormTemplate représente un modèle réutilisable.
@@ -1120,6 +1137,7 @@ Il peut également :
 * annuler les Invitations en attente ;
 * retirer un `Member` ou un autre `Administrator` ;
 * attribuer les rôles `Member` et `Administrator` ;
+* envoyer des invitations portant ces deux rôles ;
 * administrer les ressources communes de l'Organization.
 
 Un `Administrator` ne peut pas :
@@ -1139,6 +1157,7 @@ Il porte également les responsabilités de gouvernance et de continuité de pro
 Un `Owner` peut notamment :
 
 * promouvoir un OrganizationMember au rôle `Owner` ;
+* inviter un User avec attribution du rôle `Owner` lors de l’acceptation ;
 * rétrograder ou retirer un autre `Owner` ;
 * quitter l'Organization lorsqu'au moins un autre Owner y reste actif ;
 * réaliser les opérations réservées à la propriété de l'Organization.
@@ -1274,6 +1293,8 @@ Une OrganizationInvitation ne peut pas cibler un User possédant déjà un Organ
 Elle peut cibler un User dont l'OrganizationMember historique possède le statut `Removed` afin de permettre sa réactivation.
 
 Une seule invitation `Pending` peut exister pour une même paire Organization–User.
+
+L'attribution du rôle système `Owner` dans une OrganizationInvitation est réservée à un `OrganizationMember` actif ayant lui-même le rôle `Owner`. La seule Permission `ManageMembers` ne suffit pas ; le contrôle s'applique côté serveur dès la création de l'invitation.
 
 Le User qui accepte l'invitation doit être le `RecipientUserId` ciblé.
 

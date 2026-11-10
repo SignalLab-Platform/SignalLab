@@ -1,4 +1,5 @@
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Users;
 
@@ -21,8 +22,9 @@ public sealed class GetCurrentUserProfile
 
         if (user is null)
         {
-            throw new InvalidOperationException(
-                $"SignalLab user '{userId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                UserErrorCodes.UserNotFound,
+                "SignalLab user could not be found.");
         }
 
         return user;

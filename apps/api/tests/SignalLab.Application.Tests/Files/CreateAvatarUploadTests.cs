@@ -2,6 +2,7 @@ using SignalLab.Application.Files;
 using SignalLab.Application.Storage;
 using SignalLab.Domain.Files;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Files;
 
@@ -74,6 +75,32 @@ public sealed class CreateAvatarUploadTests
     }
 
     [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task ExecuteAsync_WithInvalidFileName_ShouldFail(
+        string fileName)
+    {
+        var repository = new FakeStoredFileRepository();
+        var objectStorage = new FakeObjectStorage();
+
+        var useCase = new CreateAvatarUpload(
+            repository,
+            objectStorage);
+
+        var exception = await Assert.ThrowsAsync<ValidationException>(
+            () => useCase.ExecuteAsync(
+                UserId.New(),
+                fileName,
+                "image/png",
+                1024,
+                CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.InvalidAvatarFileName,
+            exception.Code);
+    }
+
+    [Theory]
     [InlineData("image/gif")]
     [InlineData("image/svg+xml")]
     [InlineData("application/pdf")]
@@ -87,13 +114,17 @@ public sealed class CreateAvatarUploadTests
             repository,
             objectStorage);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
+        var exception = await Assert.ThrowsAsync<UnsupportedMediaTypeException>(() =>
             useCase.ExecuteAsync(
                 UserId.New(),
                 "avatar",
                 contentType,
                 1024,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.UnsupportedAvatarContentType,
+            exception.Code);
 
         Assert.Null(repository.AddedStoredFile);
         Assert.Equal(0, repository.SaveChangesCallCount);
@@ -113,13 +144,17 @@ public sealed class CreateAvatarUploadTests
             repository,
             objectStorage);
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+        var exception = await Assert.ThrowsAsync<ValidationException>(() =>
             useCase.ExecuteAsync(
                 UserId.New(),
                 "avatar.png",
                 "image/png",
                 size,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.InvalidAvatarSize,
+            exception.Code);
 
         Assert.Null(repository.AddedStoredFile);
         Assert.Equal(0, repository.SaveChangesCallCount);

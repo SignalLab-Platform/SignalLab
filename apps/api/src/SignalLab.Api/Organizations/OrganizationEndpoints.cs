@@ -13,46 +13,33 @@ public static class OrganizationEndpoints
             .MapGroup("/organizations")
             .RequireAuthorization();
 
-        group.MapPost(
-            "/",
-            async (
-                CreateOrganizationRequest request,
-                CurrentUserContextResolver currentUserContextResolver,
-                CreateOrganization createOrganization,
-                CancellationToken cancellationToken) =>
-            {
-                var currentUser = await currentUserContextResolver.ResolveAsync(
-                    cancellationToken);
+        group.MapPost("/", async (
+            CreateOrganizationRequest request,
+            CurrentUserContextResolver currentUserContextResolver,
+            CreateOrganization createOrganization,
+            CancellationToken cancellationToken) =>
+        {
+            var currentUser = await currentUserContextResolver.ResolveAsync(
+                cancellationToken);
 
-                try
-                {
-                    var organization = await createOrganization.ExecuteAsync(
-                        currentUser.UserId,
-                        request.Name!,
-                        request.Country!,
-                        request.Website,
-                        cancellationToken);
+            var organization = await createOrganization.ExecuteAsync(
+                currentUser.UserId,
+                request.Name!,
+                request.Country!,
+                request.Website,
+                cancellationToken);
 
-                    var response = new CreateOrganizationResponse(
-                        organization.Id.Value,
-                        organization.Name,
-                        organization.Country,
-                        organization.Website);
+            var response = new CreateOrganizationResponse(
+                organization.Id.Value,
+                organization.Name,
+                organization.Country,
+                organization.Website);
 
-                    return Results.Created(
-                        $"/organizations/{organization.Id.Value}",
-                        response);
-                }
-                catch (ArgumentException exception)
-                {
-                    return Results.BadRequest(
-                        new
-                        {
-                            error = exception.Message
-                        });
-                }
-            })
-            .WithName("CreateOrganization");
+            return Results.Created(
+                $"/organizations/{organization.Id.Value}",
+                response);
+        })
+        .WithName("CreateOrganization");
         
         group.MapGet("/", async (
             CurrentUserContextResolver currentUserContextResolver,

@@ -218,6 +218,13 @@ public sealed class GetOrganizationMembersTests
         {
             throw new NotSupportedException();
         }
+
+        public Task<IReadOnlyList<Organization>> GetByIdsAsync(
+            IReadOnlyCollection<OrganizationId> organizationIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     private sealed class FakeUserRepository : IUserRepository

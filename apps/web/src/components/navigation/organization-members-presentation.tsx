@@ -43,6 +43,8 @@ type OrganizationMembersActionsProps =
   statusFilter: MemberStatusFilter;
   onStatusFilterChange: (value: MemberStatusFilter) => void;
   roles: readonly string[];
+  canInvite: boolean;
+  onInvite: () => void;
 };
 
 type OrganizationMembersContentProps =
@@ -94,6 +96,8 @@ export function OrganizationMembersActions(
     statusFilter,
     onStatusFilterChange,
     roles,
+    canInvite,
+    onInvite,
   }: Readonly<OrganizationMembersActionsProps>
 )
 {
@@ -184,15 +188,18 @@ export function OrganizationMembersActions(
         </SelectContent>
       </Select>
 
-      <Button
-        type="button"
-        size="sm"
-        disabled
-        title="Member invitations will be introduced in SL-031."
-      >
-        <UserPlus aria-hidden="true" className="size-4" />
-        Invite member
-      </Button>
+      {canInvite
+        ? (
+          <Button
+            type="button"
+            size="sm"
+            onClick={onInvite}
+          >
+            <UserPlus aria-hidden="true" className="size-4" />
+            Invite member
+          </Button>
+        )
+        : null}
     </>
   );
 }

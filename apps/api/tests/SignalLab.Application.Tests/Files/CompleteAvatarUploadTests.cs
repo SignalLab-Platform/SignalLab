@@ -3,6 +3,7 @@ using SignalLab.Application.Storage;
 using SignalLab.Application.Users;
 using SignalLab.Domain.Files;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Files;
 
@@ -123,11 +124,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 StoredFileId.New(),
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.StoredFileNotFound,
+            exception.Code);
 
         Assert.Null(user.AvatarFileId);
         Assert.Equal(0, objectStorage.GetMetadataCallCount);
@@ -156,11 +161,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 storedFile.Id,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.StoredFileNotFound,
+            exception.Code);
 
         Assert.Equal(
             StoredFileStatus.Pending,
@@ -193,11 +202,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 storedFile.Id,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.UploadNotPending,
+            exception.Code);
 
         Assert.Null(user.AvatarFileId);
         Assert.Equal(0, objectStorage.GetMetadataCallCount);
@@ -224,11 +237,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 storedFile.Id,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectNotFound,
+            exception.Code);
 
         Assert.Equal(
             StoredFileStatus.Pending,
@@ -261,11 +278,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 storedFile.Id,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectContentTypeMismatch,
+            exception.Code);
 
         Assert.Equal(
             StoredFileStatus.Pending,
@@ -298,11 +319,15 @@ public sealed class CompleteAvatarUploadTests
             userRepository,
             objectStorage);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(
                 user.Id,
                 storedFile.Id,
                 CancellationToken.None));
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectSizeMismatch,
+            exception.Code);
 
         Assert.Equal(
             StoredFileStatus.Pending,

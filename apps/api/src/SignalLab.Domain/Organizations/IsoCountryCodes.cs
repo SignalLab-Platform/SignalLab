@@ -1,6 +1,6 @@
 namespace SignalLab.Domain.Organizations;
 
-internal static class IsoCountryCodes
+public static class IsoCountryCodes
 {
     private static readonly HashSet<string> codes = new(
         """

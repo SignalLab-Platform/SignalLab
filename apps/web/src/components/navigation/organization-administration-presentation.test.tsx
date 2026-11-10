@@ -51,6 +51,16 @@ import type
   OrganizationMember,
 } from "@/features/organizations/organization-member";
 
+import {
+  useOrganizationInvitations,
+} from "@/features/organization-invitations/use-organization-invitations";
+
+import {
+  useCancelOrganizationInvitation,
+} from "@/features/organization-invitations/use-cancel-organization-invitation";
+
+import { useCurrentUser } from "@/features/current-user/use-current-user";
+
 import
 {
   resetNavigationState,
@@ -64,6 +74,20 @@ import type
 jest.mock("@/features/organizations/use-organizations");
 jest.mock("@/features/organizations/use-organization-members");
 jest.mock("@/features/organizations/use-organization-roles");
+jest.mock("@/features/organization-invitations/use-organization-invitations");
+jest.mock("@/features/current-user/use-current-user");
+
+jest.mock(
+  "@/features/organization-invitations/create-organization-invitation-dialog",
+  () =>
+  ({
+    CreateOrganizationInvitationDialog: () => null,
+  })
+);
+
+jest.mock(
+  "@/features/organization-invitations/use-cancel-organization-invitation"
+);
 
 Object.defineProperty(HTMLElement.prototype, "scrollIntoView",
 {
@@ -76,6 +100,7 @@ describe("OrganizationAdministrationPresentation", () =>
 {
   const mockedUseOrganizations = jest.mocked(useOrganizations);
   const mockedUseOrganizationMembers = jest.mocked(useOrganizationMembers);
+  const mockedUseOrganizationInvitations = jest.mocked(useOrganizationInvitations);
 
   const alphaMembers: OrganizationMember[] =
   [
@@ -261,6 +286,33 @@ describe("OrganizationAdministrationPresentation", () =>
       refetch: refetchRoles,
     } as unknown as ReturnType<typeof useOrganizationRoles>;
   });
+
+  mockedUseOrganizationInvitations.mockReturnValue(
+  {
+    data: [],
+    isPending: false,
+    isError: false,
+    refetch: jest.fn(),
+  } as unknown as ReturnType<typeof useOrganizationInvitations>);
+
+  jest.mocked(useCurrentUser).mockReturnValue(
+  {
+    data:
+    {
+      id: "user-alpha-one",
+      email: "alice@example.com",
+    },
+    isPending: false,
+    isError: false,
+  } as unknown as ReturnType<typeof useCurrentUser>);
+
+  jest.mocked(useCancelOrganizationInvitation).mockReturnValue(
+  {
+    mutateAsync: jest.fn(),
+    isPending: false,
+    isError: false,
+    error: null,
+  } as unknown as ReturnType<typeof useCancelOrganizationInvitation>);
 
   it("renders the Organization breadcrumb and Members navigation", () =>
   {
@@ -485,25 +537,21 @@ describe("OrganizationAdministrationPresentation", () =>
       />
     );
 
-    expect(
-      screen.getByRole("status")
-    ).toHaveTextContent(
-      "Invitation management will be introduced in SL-031."
+    expect(screen.getByText("No invitations")).toBeInTheDocument();
+
+    expect(mockedUseOrganizationInvitations).toHaveBeenCalledWith(
+      "organization-alpha",
+      true
     );
+
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("button",
       {
         name: "Invite member",
       })
-    ).toBeDisabled();
-
-    expect(
-      screen.getByRole("columnheader",
-      {
-        name: "Email",
-      })
-    ).toBeInTheDocument();
+    ).toBeEnabled();
 
     expect(
       screen.queryByRole("searchbox",
@@ -511,8 +559,6 @@ describe("OrganizationAdministrationPresentation", () =>
         name: "Search members",
       })
     ).not.toBeInTheDocument();
-
-    expect(screen.getByRole("table")).toBeInTheDocument();
 
     expect(
       screen.queryByRole("columnheader",
@@ -603,7 +649,7 @@ describe("OrganizationAdministrationPresentation", () =>
     ).not.toBeInTheDocument();
   });
 
-  it("loads roles only when Settings is selected", () =>
+  it("loads roles for all administration views", () =>
   {
     const { rerender } = render(
       <OrganizationAdministrationPresentation
@@ -611,9 +657,20 @@ describe("OrganizationAdministrationPresentation", () =>
       />
     );
 
-    expect(mockedUseOrganizationRoles).toHaveBeenCalledWith(
+    expect(mockedUseOrganizationRoles).toHaveBeenLastCalledWith(
       "organization-alpha",
-      false
+      true
+    );
+
+    rerender(
+      <OrganizationAdministrationPresentation
+        location={createLocation("organization-alpha", "invitations")}
+      />
+    );
+
+    expect(mockedUseOrganizationRoles).toHaveBeenLastCalledWith(
+      "organization-alpha",
+      true
     );
 
     rerender(
@@ -626,13 +683,6 @@ describe("OrganizationAdministrationPresentation", () =>
       "organization-alpha",
       true
     );
-
-    expect(
-      screen.getByRole("heading",
-      {
-        name: "Roles & Permissions",
-      })
-    ).toBeInTheDocument();
   });
 
   it("displays roles belonging to the selected Organization", () =>
@@ -704,5 +754,29 @@ describe("OrganizationAdministrationPresentation", () =>
     expect(screen.getByRole("status")).toHaveTextContent(
       "Loading organization members..."
     );
+  });
+
+  it("hides invitation actions without ManageMembers permission", () =>
+  {
+    jest.mocked(useCurrentUser).mockReturnValue(
+    {
+      data:
+      {
+        id: "user-alpha-two",
+        email: "bob@example.com",
+      },
+      isPending: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useCurrentUser>);
+
+    render(
+      <OrganizationAdministrationPresentation
+        location={createLocation("organization-alpha", "invitations")}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Invite member" })
+    ).not.toBeInTheDocument();
   });
 });

@@ -2,6 +2,7 @@ using SignalLab.Application.Organizations;
 using SignalLab.Application.Users;
 using SignalLab.Domain.Organizations;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Organizations;
 
@@ -80,7 +81,7 @@ public sealed class CreateOrganizationTests
             organizationRepository,
             userRepository);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(
             () => useCase.ExecuteAsync(
                 userId,
                 "SignalLab Studio",
@@ -89,8 +90,8 @@ public sealed class CreateOrganizationTests
                 CancellationToken.None));
 
         Assert.Equal(
-            $"SignalLab user '{userId.Value}' could not be found.",
-            exception.Message);
+            UserErrorCodes.UserNotFound,
+            exception.Code);
 
         Assert.Null(organizationRepository.AddedOrganization);
         Assert.Equal(0, organizationRepository.AddCallCount);
@@ -114,13 +115,19 @@ public sealed class CreateOrganizationTests
             organizationRepository,
             userRepository);
 
-        await Assert.ThrowsAnyAsync<ArgumentException>(
+        var exception = await Assert.ThrowsAsync<ValidationException>(
             () => useCase.ExecuteAsync(
                 user.Id,
                 name,
                 country,
                 null,
                 CancellationToken.None));
+
+        var expectedCode = string.IsNullOrWhiteSpace(name)
+            ? OrganizationErrorCodes.InvalidName
+            : OrganizationErrorCodes.InvalidCountry;
+
+        Assert.Equal(expectedCode, exception.Code);
 
         Assert.Null(organizationRepository.AddedOrganization);
         Assert.Equal(0, organizationRepository.AddCallCount);
@@ -144,7 +151,7 @@ public sealed class CreateOrganizationTests
             organizationRepository,
             userRepository);
 
-        var exception = await Assert.ThrowsAsync<ArgumentException>(
+        var exception = await Assert.ThrowsAsync<ValidationException>(
             () => useCase.ExecuteAsync(
                 user.Id,
                 "SignalLab Studio",
@@ -152,7 +159,9 @@ public sealed class CreateOrganizationTests
                 null,
                 CancellationToken.None));
 
-        Assert.Equal("country", exception.ParamName);
+        Assert.Equal(
+            OrganizationErrorCodes.InvalidCountry,
+            exception.Code);
 
         Assert.Null(organizationRepository.AddedOrganization);
         Assert.Equal(0, organizationRepository.AddCallCount);
@@ -251,6 +260,13 @@ public sealed class CreateOrganizationTests
             CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
+        }
+
+        public Task<IReadOnlyList<Organization>> GetByIdsAsync(
+            IReadOnlyCollection<OrganizationId> organizationIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

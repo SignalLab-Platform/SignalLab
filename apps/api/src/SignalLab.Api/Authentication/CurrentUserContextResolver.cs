@@ -1,3 +1,5 @@
+using SignalLab.Application.Errors;
+using SignalLab.Application.Identity;
 using SignalLab.Application.Users;
 
 namespace SignalLab.Api.Authentication;
@@ -32,7 +34,8 @@ public sealed class CurrentUserContextResolver
 
         if (string.IsNullOrWhiteSpace(externalIdentityId))
         {
-            throw new InvalidOperationException(
+            throw new AuthenticationRequiredException(
+                AuthenticationErrorCodes.MissingExternalIdentity,
                 "The authenticated user has no external identity ID.");
         }
 
@@ -42,8 +45,9 @@ public sealed class CurrentUserContextResolver
 
         if (user is null)
         {
-            throw new InvalidOperationException(
-                "The authenticated user has no SignalLab user.");
+            throw new ConflictException(
+                AuthenticationErrorCodes.SessionInitializationRequired,
+                "The SignalLab session must be initialized before accessing this resource.");
         }
 
         return new CurrentUserContext(user.Id);

@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using SignalLab.Domain.Organizations;
+using SignalLab.Application.Organizations;
 
 namespace SignalLab.Api.Integration.Tests.Organizations;
 
@@ -92,6 +93,8 @@ public sealed class OrganizationEndpointsTests :
     [Theory]
     [InlineData("", "FR")]
     [InlineData("SignalLab Studio", "")]
+    [InlineData("   ", "FR")]
+    [InlineData("SignalLab Studio", "   ")]
     public async Task CreateOrganization_WithInvalidRequiredFields_ReturnsBadRequest(
         string name,
         string country)
@@ -113,6 +116,17 @@ public sealed class OrganizationEndpointsTests :
             });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await response.Content.ReadAsStringAsync());
+
+        var expectedCode = string.IsNullOrWhiteSpace(name)
+            ? OrganizationErrorCodes.InvalidName
+            : OrganizationErrorCodes.InvalidCountry;
+
+        Assert.Equal(
+            expectedCode,
+            document.RootElement.GetProperty("code").GetString());
     }
 
     [Theory]
@@ -141,6 +155,51 @@ public sealed class OrganizationEndpointsTests :
             });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            OrganizationErrorCodes.InvalidCountry,
+            document.RootElement.GetProperty("code").GetString());
+    }
+
+    [Theory]
+    [InlineData("not-a-url")]
+    [InlineData("ftp://example.com")]
+    [InlineData("mailto:contact@example.com")]
+    [InlineData("https://")]
+    public async Task CreateOrganization_WithInvalidWebsite_ReturnsBadRequest(
+        string website)
+    {
+        using var client = CreateAuthenticatedClient();
+
+        using var sessionResponse = await client.GetAsync(
+            "/authentication/session");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            sessionResponse.StatusCode);
+
+        using var response = await client.PostAsJsonAsync(
+            "/organizations",
+            new
+            {
+                name = "SignalLab Studio",
+                country = "FR",
+                website
+            });
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            response.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            OrganizationErrorCodes.InvalidWebsite,
+            document.RootElement.GetProperty("code").GetString());
     }
 
     [Fact]

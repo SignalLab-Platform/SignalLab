@@ -8,6 +8,10 @@ import
 
 import { useCurrentUser } from "@/features/current-user/use-current-user";
 
+import {
+  CurrentUserInvitationsSection,
+} from "@/features/organization-invitations/current-user-invitations-section";
+
 import { OrganizationsPersonalExplorer } from "@/features/organizations/organizations-personal-explorer";
 
 export function PersonalHomePresentation()
@@ -109,6 +113,8 @@ export function PersonalHomePresentation()
 
       <div className="space-y-8">
         <OrganizationsPersonalExplorer />
+
+        <CurrentUserInvitationsSection />
 
         <section
           aria-labelledby="participations-heading"

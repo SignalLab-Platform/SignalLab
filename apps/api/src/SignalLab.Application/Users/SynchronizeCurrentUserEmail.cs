@@ -1,5 +1,6 @@
 using SignalLab.Application.Identity;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Users;
 
@@ -26,8 +27,9 @@ public sealed class SynchronizeCurrentUserEmail
 
         if (user is null)
         {
-            throw new InvalidOperationException(
-                $"SignalLab user '{userId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                UserErrorCodes.UserNotFound,
+                "SignalLab user could not be found.");
         }
 
         var externalIdentity = await externalIdentityProvider.GetByIdAsync(
@@ -36,8 +38,7 @@ public sealed class SynchronizeCurrentUserEmail
 
         if (externalIdentity is null)
         {
-            throw new InvalidOperationException(
-                $"External identity '{user.ExternalIdentityId}' could not be found.");
+            throw new ExternalIdentityNotFoundException(user.ExternalIdentityId);
         }
 
         var existingUser = await userRepository.GetByEmailAsync(
@@ -47,7 +48,8 @@ public sealed class SynchronizeCurrentUserEmail
         if (existingUser is not null &&
             existingUser.Id != user.Id)
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
+                UserErrorCodes.EmailAlreadyInUse,
                 "Email is already associated with another SignalLab user.");
         }
 

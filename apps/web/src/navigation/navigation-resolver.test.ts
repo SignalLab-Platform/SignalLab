@@ -254,4 +254,53 @@ describe("navigation resolver", () =>
       );
     });
   });
+
+  it("resolves an Organization Invitation as an independent context", () =>
+  {
+    expect(
+      resolveNavigationLocation(
+        "/organization-invitations/demo-invitation"
+      )
+    ).toEqual(
+    {
+      pathname: "/organization-invitations/demo-invitation",
+      contextKind: "organization-invitation",
+      contextKey: "organization-invitation:demo-invitation",
+      presentationModel: "document",
+      invitationId: "demo-invitation",
+      localView: null,
+      hierarchy: [],
+    });
+  });
+
+  it("normalizes an Organization Invitation pathname", () =>
+  {
+    expect(
+      resolveNavigationLocation(
+        "/organization-invitations/demo%20invitation/?from=%2Fhome"
+      )
+    ).toEqual(
+    {
+      pathname: "/organization-invitations/demo%20invitation",
+      contextKind: "organization-invitation",
+      contextKey: "organization-invitation:demo invitation",
+      presentationModel: "document",
+      invitationId: "demo invitation",
+      localView: null,
+      hierarchy: [],
+    });
+  });
+
+  it("rejects incomplete Organization Invitation routes", () =>
+  {
+    expect(
+      resolveNavigationLocation("/organization-invitations")
+    ).toBeNull();
+
+    expect(
+      resolveNavigationLocation(
+        "/organization-invitations/demo-invitation/accept"
+      )
+    ).toBeNull();
+  });
 });

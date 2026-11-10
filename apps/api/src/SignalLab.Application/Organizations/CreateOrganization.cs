@@ -1,6 +1,7 @@
+using SignalLab.Application.Errors;
+using SignalLab.Application.Users;
 using SignalLab.Domain.Organizations;
 using SignalLab.Domain.Users;
-using SignalLab.Application.Users;
 
 namespace SignalLab.Application.Organizations;
 
@@ -30,8 +31,41 @@ public sealed class CreateOrganization
 
         if (creator is null)
         {
-            throw new InvalidOperationException(
-                $"SignalLab user '{creatorId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                UserErrorCodes.UserNotFound,
+                "SignalLab user could not be found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ValidationException(
+                OrganizationErrorCodes.InvalidName,
+                "Organization name cannot be empty.");
+        }
+
+        if (string.IsNullOrWhiteSpace(country) ||
+            !IsoCountryCodes.Contains(country.Trim()))
+        {
+            throw new ValidationException(
+                OrganizationErrorCodes.InvalidCountry,
+                "Country must be a valid ISO 3166-1 alpha-2 code.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(website))
+        {
+            var normalizedWebsite = website.Trim();
+
+            if (!Uri.TryCreate(
+                normalizedWebsite,
+                UriKind.Absolute,
+                out var uri) ||
+                (uri.Scheme != Uri.UriSchemeHttp &&
+                 uri.Scheme != Uri.UriSchemeHttps))
+            {
+                throw new ValidationException(
+                    OrganizationErrorCodes.InvalidWebsite,
+                    "Website must be a valid absolute HTTP or HTTPS URL.");
+            }
         }
 
         var organization = new Organization(
@@ -43,7 +77,8 @@ public sealed class CreateOrganization
 
         organizationRepository.Add(organization);
 
-        await organizationRepository.SaveChangesAsync(cancellationToken);
+        await organizationRepository.SaveChangesAsync(
+            cancellationToken);
 
         return organization;
     }

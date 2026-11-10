@@ -16,4 +16,8 @@ public interface IOrganizationRepository
     Task<IReadOnlyList<Organization>> GetAccessibleByUserIdAsync(
         UserId userId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Organization>> GetByIdsAsync(
+        IReadOnlyCollection<OrganizationId> organizationIds,
+        CancellationToken cancellationToken);
 }

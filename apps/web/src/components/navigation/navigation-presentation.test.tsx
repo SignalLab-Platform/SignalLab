@@ -42,6 +42,34 @@ jest.mock("next/navigation", () =>
   };
 });
 
+jest.mock(
+  "@/features/organization-invitations/organization-invitation-presentation",
+  () =>
+  ({
+    OrganizationInvitationPresentation:
+      ({ invitationId }: { invitationId: string }) =>
+    {
+      return (
+        <section data-testid="organization-invitation-presentation">
+          Invitation: {invitationId}
+        </section>
+      );
+    },
+  })
+);
+
+jest.mock(
+  "@/features/organization-invitations/current-user-invitations-section",
+  () =>
+  ({
+    CurrentUserInvitationsSection: () => (
+      <section aria-label="Personal invitations">
+        Invitations
+      </section>
+    ),
+  })
+);
+
 jest.mock("@/features/current-user/use-current-user");
 jest.mock("@/features/organizations/use-organizations");
 
@@ -297,6 +325,27 @@ describe("NavigationPresentation", () =>
     expect(
       screen.queryByRole("navigation",
       {
+        name: "Local navigation",
+      })
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders an independent Organization Invitation presentation", () =>
+  {
+    const location = resolveRequiredLocation(
+      "/organization-invitations/demo-invitation"
+    );
+
+    render(
+      <NavigationPresentation location={location} />
+    );
+
+    expect(
+      screen.getByTestId("organization-invitation-presentation")
+    ).toHaveTextContent("Invitation: demo-invitation");
+
+    expect(
+      screen.queryByRole("navigation", {
         name: "Local navigation",
       })
     ).not.toBeInTheDocument();

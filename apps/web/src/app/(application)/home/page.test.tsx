@@ -25,6 +25,20 @@ jest.mock(
   }
 );
 
+jest.mock(
+  "@/features/organization-invitations/current-user-invitations-section",
+  () =>
+  ({
+    CurrentUserInvitationsSection: () => (
+      <section aria-labelledby="invitations-heading">
+        <h2 id="invitations-heading">
+          Invitations
+        </h2>
+      </section>
+    ),
+  })
+);
+
 describe("HomePage", () =>
 {
   beforeEach(() =>
@@ -93,5 +107,35 @@ describe("HomePage", () =>
     expect(
       screen.queryByText("Demo Participation")
     ).not.toBeInTheDocument();
+  });
+
+  it("places Invitations between Organizations and Participations", () =>
+  {
+    render(<HomePage />);
+
+    const organizations = screen.getByRole("heading",
+    {
+      name: "Organizations",
+    });
+
+    const invitations = screen.getByRole("heading",
+    {
+      name: "Invitations",
+    });
+
+    const participations = screen.getByRole("heading",
+    {
+      name: "Participations",
+    });
+
+    expect(
+      organizations.compareDocumentPosition(invitations) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+
+    expect(
+      invitations.compareDocumentPosition(participations) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 });

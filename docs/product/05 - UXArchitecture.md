@@ -169,6 +169,25 @@ La navigation vers une ressource développe automatiquement son Organization par
 
 La réduction de la Sidebar ne détruit pas l'état de navigation ni les expansions existantes.
 
+### Filtrage de la navigation contextuelle
+
+Le filtre local de la Sidebar recherche parmi les ressources de l'arborescence accessibles au User.
+
+Son périmètre évolue avec les domaines disponibles : Organizations, puis Projects et Campaigns.
+
+Lorsqu'une ressource enfant correspond au filtre, ses ancêtres restent visibles afin de préserver sa position dans la hiérarchie.
+
+Le filtre est insensible à la casse et ne modifie jamais :
+
+- le contexte de navigation actif ;
+- l'URL courante ;
+- l'état d'expansion mémorisé ;
+- les paramètres de recherche et de filtrage des Explorers.
+
+Le filtrage de la Sidebar est une opération de présentation locale. Il ne remplace pas la Global Search ni la Context Search des Explorers.
+
+La navigation vers une ressource développe automatiquement les ancêtres nécessaires, indépendamment du filtre local. Le User peut ensuite modifier manuellement leur expansion.
+
 ---
 
 ## 2.5 Content

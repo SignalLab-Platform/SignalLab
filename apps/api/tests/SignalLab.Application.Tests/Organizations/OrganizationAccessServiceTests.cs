@@ -194,5 +194,12 @@ public sealed class OrganizationAccessServiceTests
         {
             throw new NotSupportedException();
         }
+
+        public Task<IReadOnlyList<Organization>> GetByIdsAsync(
+            IReadOnlyCollection<OrganizationId> organizationIds,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

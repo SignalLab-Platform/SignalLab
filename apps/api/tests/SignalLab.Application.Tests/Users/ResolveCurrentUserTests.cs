@@ -70,7 +70,11 @@ public sealed class ResolveCurrentUserTests
                 CancellationToken.None));
 
         Assert.Equal(
-            "External identity 'external-user-123' could not be found.",
+            "external_identity_not_found",
+            exception.Code);
+
+        Assert.Equal(
+            "External identity could not be resolved.",
             exception.Message);
 
         Assert.Equal(1, identityProvider.GetByIdCallCount);

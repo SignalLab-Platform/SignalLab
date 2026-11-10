@@ -1,6 +1,7 @@
 using SignalLab.Application.Identity;
 using SignalLab.Application.Users;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Users;
 
@@ -50,14 +51,12 @@ public sealed class SynchronizeCurrentUserEmailTests
             repository,
             externalIdentityProvider);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(
             () => useCase.ExecuteAsync(
                 userId,
                 CancellationToken.None));
 
-        Assert.Equal(
-            $"SignalLab user '{userId.Value}' could not be found.",
-            exception.Message);
+        Assert.Equal(UserErrorCodes.UserNotFound, exception.Code);
 
         Assert.Equal(
             0,
@@ -80,14 +79,14 @@ public sealed class SynchronizeCurrentUserEmailTests
             repository,
             externalIdentityProvider);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsAsync<ExternalIdentityNotFoundException>(
             () => useCase.ExecuteAsync(
                 user.Id,
                 CancellationToken.None));
 
         Assert.Equal(
-            $"External identity '{user.ExternalIdentityId}' could not be found.",
-            exception.Message);
+            "external_identity_not_found",
+            exception.Code);
 
         Assert.Equal(
             1,
@@ -121,14 +120,12 @@ public sealed class SynchronizeCurrentUserEmailTests
             repository,
             externalIdentityProvider);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsAsync<ConflictException>(
             () => useCase.ExecuteAsync(
                 user.Id,
                 CancellationToken.None));
 
-        Assert.Equal(
-            "Email is already associated with another SignalLab user.",
-            exception.Message);
+        Assert.Equal(UserErrorCodes.EmailAlreadyInUse, exception.Code);
 
         Assert.Equal("user@example.com", user.Email);
         Assert.Equal(0, repository.SaveChangesCallCount);

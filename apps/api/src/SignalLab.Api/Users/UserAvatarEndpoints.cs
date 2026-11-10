@@ -25,37 +25,18 @@ public static class UserAvatarEndpoints
                 var currentUser = await currentUserContextResolver.ResolveAsync(
                     cancellationToken);
 
-                try
-                {
-                    var result = await createAvatarUpload.ExecuteAsync(
-                        currentUser.UserId,
-                        request.FileName,
-                        request.ContentType,
-                        request.Size,
-                        cancellationToken);
+                var result = await createAvatarUpload.ExecuteAsync(
+                    currentUser.UserId,
+                    request.FileName,
+                    request.ContentType,
+                    request.Size,
+                    cancellationToken);
 
-                    return Results.Ok(
-                        new CreateAvatarUploadResponse(
-                            result.StoredFileId.Value,
-                            result.UploadUrl.ToString(),
-                            result.ExpiresAt));
-                }
-                catch (ArgumentOutOfRangeException exception)
-                    when (exception.ParamName == "size")
-                {
-                    return Results.Problem(
-                        statusCode: StatusCodes.Status400BadRequest,
-                        title: "Invalid avatar size.",
-                        detail: exception.Message);
-                }
-                catch (ArgumentException exception)
-                    when (exception.ParamName == "contentType")
-                {
-                    return Results.Problem(
-                        statusCode: StatusCodes.Status415UnsupportedMediaType,
-                        title: "Unsupported avatar content type.",
-                        detail: exception.Message);
-                }
+                return Results.Ok(
+                    new CreateAvatarUploadResponse(
+                        result.StoredFileId.Value,
+                        result.UploadUrl.ToString(),
+                        result.ExpiresAt));
             })
             .WithName("CreateCurrentUserAvatarUpload");
 

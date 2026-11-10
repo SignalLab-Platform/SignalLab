@@ -25,6 +25,10 @@ import
   OrganizationInvitationsContent,
 } from "@/components/navigation/organization-invitations-presentation";
 
+import {
+  useOrganizationInvitations,
+} from "@/features/organization-invitations/use-organization-invitations";
+
 import
 {
   OrganizationSettingsContent,
@@ -54,6 +58,12 @@ import
 {
   useOrganizations,
 } from "@/features/organizations/use-organizations";
+
+import { useCurrentUser } from "@/features/current-user/use-current-user";
+
+import {
+  CreateOrganizationInvitationDialog,
+} from "@/features/organization-invitations/create-organization-invitation-dialog";
 
 import
 {
@@ -89,8 +99,8 @@ export function OrganizationAdministrationPresentation(
 
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] =
-    useState<MemberStatusFilter>("active");
+  const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("active");
+  const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
 
   const explorerView = getPersistedLocalView(
     navigationState,
@@ -136,7 +146,30 @@ export function OrganizationAdministrationPresentation(
 
   const rolesQuery = useOrganizationRoles(
     location.organizationId,
-    location.localView === "settings"
+    location.localView === "settings" ||
+    location.localView === "members" ||
+    location.localView === "invitations"
+  );
+
+  const currentUserQuery = useCurrentUser();
+
+  const currentMembership = members?.find((member) =>
+  {
+    return member.userId === currentUserQuery.data?.id &&
+      member.status === "Active";
+  });
+
+  const currentRole = rolesQuery.data?.find((role) =>
+  {
+    return role.id === currentMembership?.roleId;
+  });
+
+  const canInvite = currentRole?.permissions.includes("ManageMembers") === true;
+  const canInviteOwner = canInvite && currentRole?.isOwner === true;
+
+  const invitationsQuery = useOrganizationInvitations(
+    location.organizationId,
+    location.localView === "invitations"
   );
 
   const breadcrumbItems =
@@ -153,7 +186,7 @@ export function OrganizationAdministrationPresentation(
 
   const actions = location.localView === "members"
     ? (
-        <OrganizationMembersActions
+      <OrganizationMembersActions
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         roleFilter={roleFilter}
@@ -161,10 +194,21 @@ export function OrganizationAdministrationPresentation(
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         roles={roles}
-        />
+        canInvite={canInvite}
+        onInvite={() =>
+        {
+          setInvitationDialogOpen(true);
+        }}
+      />
     )
     : location.localView === "invitations"
-        ? <OrganizationInvitationsActions />
+        ? <OrganizationInvitationsActions
+            canInvite={canInvite}
+            onInvite={() =>
+            {
+              setInvitationDialogOpen(true);
+            }}
+          />
         : undefined;
 
   return (
@@ -200,7 +244,19 @@ export function OrganizationAdministrationPresentation(
           : null}
 
         {location.localView === "invitations"
-          ? <OrganizationInvitationsContent />
+          ? (
+            <OrganizationInvitationsContent
+              organizationId={location.organizationId}
+              canManageInvitations={canInvite}
+              invitations={invitationsQuery.data ?? []}
+              isPending={invitationsQuery.isPending}
+              isError={invitationsQuery.isError}
+              onRetry={() =>
+              {
+                void invitationsQuery.refetch();
+              }}
+            />
+          )
           : null}
 
         {location.localView === "settings"
@@ -224,6 +280,14 @@ export function OrganizationAdministrationPresentation(
           )
         : null}
       </div>
+
+      <CreateOrganizationInvitationDialog
+        organizationId={location.organizationId}
+        roles={rolesQuery.data ?? []}
+        open={invitationDialogOpen}
+        onOpenChange={setInvitationDialogOpen}
+        canInviteOwner={canInviteOwner}
+      />
     </section>
   );
 }

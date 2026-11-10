@@ -2,6 +2,7 @@ using SignalLab.Application.Storage;
 using SignalLab.Application.Users;
 using SignalLab.Domain.Files;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Files;
 
@@ -32,19 +33,22 @@ public sealed class CompleteAvatarUpload
 
         if (storedFile is null)
         {
-            throw new InvalidOperationException(
-                $"Stored file '{storedFileId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                FileErrorCodes.StoredFileNotFound,
+                "Stored file could not be found.");
         }
 
         if (storedFile.OwnerUserId != userId)
         {
-            throw new InvalidOperationException(
-                "Stored file does not belong to the current user.");
+            throw new ResourceNotFoundException(
+                FileErrorCodes.StoredFileNotFound,
+                "Stored file could not be found.");
         }
 
         if (storedFile.Status != StoredFileStatus.Pending)
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
+                FileErrorCodes.UploadNotPending,
                 "Stored file is not pending.");
         }
 
@@ -54,7 +58,8 @@ public sealed class CompleteAvatarUpload
 
         if (metadata is null)
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
+                FileErrorCodes.UploadedObjectNotFound,
                 "Uploaded object could not be found.");
         }
 
@@ -63,13 +68,15 @@ public sealed class CompleteAvatarUpload
             storedFile.ContentType,
             StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
+                FileErrorCodes.UploadedObjectContentTypeMismatch,
                 "Uploaded object content type does not match the expected content type.");
         }
 
         if (metadata.Size != storedFile.Size)
         {
-            throw new InvalidOperationException(
+            throw new ConflictException(
+                FileErrorCodes.UploadedObjectSizeMismatch,
                 "Uploaded object size does not match the expected size.");
         }
 
@@ -79,8 +86,9 @@ public sealed class CompleteAvatarUpload
 
         if (user is null)
         {
-            throw new InvalidOperationException(
-                $"SignalLab user '{userId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                UserErrorCodes.UserNotFound,
+                "SignalLab user could not be found.");
         }
 
         StoredFile? previousAvatar = null;

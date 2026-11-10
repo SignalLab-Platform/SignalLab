@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SignalLab.Domain.Files;
-using SignalLab.Domain.Organizations;
 using SignalLab.Domain.Users;
+using SignalLab.Domain.Organizations;
+using SignalLab.Domain.Notifications;
 using SignalLab.Infrastructure.Persistence;
 
 namespace SignalLab.Api.Integration.Tests.Infrastructure;
@@ -53,6 +54,15 @@ public sealed class TestDatabase
             .Distinct()
             .ToListAsync();
 
+        await DeleteInvitationsAsync(
+            dbContext,
+            organizationIds,
+            new[] { userId.Value });
+
+        await dbContext.Notifications
+            .Where(notification => notification.UserId == userId.Value)
+            .ExecuteDeleteAsync();
+
         if (organizationIds.Count > 0)
         {
             await dbContext.OrganizationMembers
@@ -102,9 +112,23 @@ public sealed class TestDatabase
         var dbContext = scope.ServiceProvider
             .GetRequiredService<SignalLabDbContext>();
 
+        await using var transaction =
+            await dbContext.Database.BeginTransactionAsync();
+
+        await DeleteInvitationsAsync(
+            dbContext,
+            Array.Empty<OrganizationId>(),
+            userIds);
+
+        await dbContext.Notifications
+            .Where(notification => userIds.Contains(notification.UserId))
+            .ExecuteDeleteAsync();
+
         await dbContext.Users
             .Where(user => userIds.Contains(user.Id))
             .ExecuteDeleteAsync();
+
+        await transaction.CommitAsync();
     }
 
     public async Task<User?> GetUserAsync(string externalIdentityId)
@@ -149,6 +173,11 @@ public sealed class TestDatabase
 
         await using var transaction =
             await dbContext.Database.BeginTransactionAsync();
+
+        await DeleteInvitationsAsync(
+            dbContext,
+            organizationIds,
+            Array.Empty<UserId>());
 
         await dbContext.OrganizationMembers
             .Where(member => organizationIds.Contains(member.OrganizationId))
@@ -212,5 +241,38 @@ public sealed class TestDatabase
             DateTimeOffset.UtcNow);
 
         await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task DeleteInvitationsAsync(
+        SignalLabDbContext dbContext,
+        IReadOnlyCollection<OrganizationId> organizationIds,
+        IReadOnlyCollection<UserId> userIds)
+    {
+        var invitationIds = await dbContext.OrganizationInvitations
+            .Where(invitation =>
+                organizationIds.Contains(invitation.OrganizationId) ||
+                userIds.Contains(invitation.InvitedUserId) ||
+                userIds.Contains(invitation.InvitedByUserId))
+            .Select(invitation => invitation.Id.Value)
+            .ToListAsync();
+
+        if (invitationIds.Count == 0)
+        {
+            return;
+        }
+
+        await dbContext.Notifications
+            .Where(notification =>
+                notification.Target.Type ==
+                    NotificationTargetType.OrganizationInvitation &&
+                invitationIds.Contains(notification.Target.Id))
+            .ExecuteDeleteAsync();
+
+        await dbContext.OrganizationInvitations
+            .Where(invitation =>
+                organizationIds.Contains(invitation.OrganizationId) ||
+                userIds.Contains(invitation.InvitedUserId) ||
+                userIds.Contains(invitation.InvitedByUserId))
+            .ExecuteDeleteAsync();
     }
 }

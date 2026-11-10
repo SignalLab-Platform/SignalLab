@@ -19,6 +19,10 @@ import type
   NavigationLocation,
 } from "@/navigation/navigation-types";
 
+import {
+  OrganizationInvitationPresentation,
+} from "@/features/organization-invitations/organization-invitation-presentation";
+
 type NavigationPresentationProps =
 {
   location: NavigationLocation;
@@ -34,6 +38,15 @@ function renderPresentation(
     {
       return (
         <PersonalHomePresentation />
+      );
+    }
+
+    case "organization-invitation":
+    {
+      return (
+        <OrganizationInvitationPresentation
+          invitationId={location.invitationId}
+        />
       );
     }
 

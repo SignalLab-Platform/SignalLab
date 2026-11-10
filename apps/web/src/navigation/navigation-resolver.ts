@@ -22,6 +22,10 @@ import type
   NavigationLocation,
 } from "@/navigation/navigation-types";
 
+import {
+  buildOrganizationInvitationRoute,
+} from "@/features/organization-invitations/invitation-navigation";
+
 type ParsedPathname =
 {
   segments: string[];
@@ -122,6 +126,31 @@ function resolveHomeLocation(segments: string[]): NavigationLocation | null
     contextKind: "home",
     contextKey: "home",
     presentationModel: "personal-hub",
+    localView: null,
+    hierarchy: [],
+  };
+}
+
+function resolveOrganizationInvitationLocation(
+  segments: string[]
+): NavigationLocation | null
+{
+  if (
+    segments.length !== 2 ||
+    segments[0] !== "organization-invitations"
+  )
+  {
+    return null;
+  }
+
+  const invitationId = segments[1];
+
+  return {
+    pathname: buildOrganizationInvitationRoute(invitationId),
+    contextKind: "organization-invitation",
+    contextKey: `organization-invitation:${invitationId}`,
+    presentationModel: "document",
+    invitationId,
     localView: null,
     hierarchy: [],
   };
@@ -356,6 +385,7 @@ export function resolveNavigationLocation(
   const resolvers =
   [
     resolveHomeLocation,
+    resolveOrganizationInvitationLocation,
     resolveOrganizationLocation,
     resolveOrganizationAdministrationLocation,
     resolveProjectLocation,

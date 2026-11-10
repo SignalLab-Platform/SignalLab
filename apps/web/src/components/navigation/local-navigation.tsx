@@ -130,6 +130,12 @@ function buildLocalNavigationItems(
     }
 
     case "home":
+
+    case "organization-invitation":
+    {
+      return [];
+    }
+
     case "participation":
     {
       return [];

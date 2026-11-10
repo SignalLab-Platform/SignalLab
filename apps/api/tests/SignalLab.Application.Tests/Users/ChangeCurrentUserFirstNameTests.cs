@@ -1,5 +1,6 @@
 using SignalLab.Application.Users;
 using SignalLab.Domain.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Tests.Users;
 
@@ -45,15 +46,13 @@ public sealed class ChangeCurrentUserFirstNameTests
         var repository = new FakeUserRepository(null);
         var useCase = new ChangeCurrentUserFirstName(repository);
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+        var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(
             () => useCase.ExecuteAsync(
                 userId,
                 "Jimmy",
                 CancellationToken.None));
 
-        Assert.Equal(
-            $"SignalLab user '{userId.Value}' could not be found.",
-            exception.Message);
+        Assert.Equal(UserErrorCodes.UserNotFound, exception.Code);
 
         Assert.Equal(0, repository.SaveChangesCallCount);
     }

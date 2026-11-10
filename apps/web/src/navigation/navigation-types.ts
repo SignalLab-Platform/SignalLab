@@ -53,6 +53,7 @@ export type NavigationContextKind =
   | "home"
   | "organization"
   | "organization-administration"
+  | "organization-invitation"
   | "project"
   | "campaign"
   | "participation";
@@ -77,6 +78,7 @@ export type NavigationContextKey =
   | "home"
   | `organization:${string}`
   | `organization-administration:${string}`
+  | `organization-invitation:${string}`
   | `project:${string}`
   | `campaign:${string}`
   | `participation:${string}`;
@@ -145,10 +147,19 @@ export type ParticipationNavigationLocation = BaseNavigationLocation &
   localView: ParticipationSection;
 };
 
+export type OrganizationInvitationNavigationLocation = BaseNavigationLocation &
+{
+  contextKind: "organization-invitation";
+  presentationModel: "document";
+  invitationId: string;
+  localView: null;
+};
+
 export type NavigationLocation =
   | HomeNavigationLocation
   | OrganizationNavigationLocation
   | OrganizationAdministrationNavigationLocation
+  | OrganizationInvitationNavigationLocation
   | ProjectNavigationLocation
   | CampaignNavigationLocation
   | ParticipationNavigationLocation;

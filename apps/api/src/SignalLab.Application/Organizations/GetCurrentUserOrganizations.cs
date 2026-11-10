@@ -1,6 +1,7 @@
 using SignalLab.Domain.Organizations;
 using SignalLab.Domain.Users;
 using SignalLab.Application.Users;
+using SignalLab.Application.Errors;
 
 namespace SignalLab.Application.Organizations;
 
@@ -27,8 +28,9 @@ public sealed class GetCurrentUserOrganizations
 
         if (user is null)
         {
-            throw new InvalidOperationException(
-                $"SignalLab user '{userId.Value}' could not be found.");
+            throw new ResourceNotFoundException(
+                UserErrorCodes.UserNotFound,
+                "SignalLab user could not be found.");
         }
 
         return await organizationRepository.GetAccessibleByUserIdAsync(

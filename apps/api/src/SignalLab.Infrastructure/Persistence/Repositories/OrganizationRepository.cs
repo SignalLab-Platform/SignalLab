@@ -52,4 +52,22 @@ public sealed class OrganizationRepository : IOrganizationRepository
             .ThenBy(organization => organization.Id)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Organization>> GetByIdsAsync(
+        IReadOnlyCollection<OrganizationId> organizationIds,
+        CancellationToken cancellationToken)
+    {
+        if (organizationIds.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = organizationIds.Distinct().ToArray();
+
+        return await dbContext.Organizations
+            .AsNoTracking()
+            .Include(organization => organization.Roles)
+            .Where(organization => ids.Contains(organization.Id))
+            .ToListAsync(cancellationToken);
+    }
 }

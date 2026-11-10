@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using SignalLab.Domain.Files;
 using SignalLab.Application.Storage;
+using SignalLab.Application.Files;
 
 namespace SignalLab.Api.Integration.Tests;
 
@@ -14,6 +15,50 @@ public sealed class UserAvatarEndpointsTests
     public UserAvatarEndpointsTests(SignalLabApiFactory factory)
         : base(factory)
     {
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task CreateAvatarUpload_WithInvalidFileName_ReturnsBadRequest(
+        string fileName)
+    {
+        using var client = CreateClient();
+
+        var token = factory.TokenFactory.CreateToken(
+            SignalLabApiFactory.TestIssuer,
+            SignalLabApiFactory.TestAuthorizedParty,
+            SignalLabApiFactory.TestExternalUserId);
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        using var sessionResponse = await client.GetAsync(
+            "/authentication/session");
+
+        Assert.Equal(
+            HttpStatusCode.OK,
+            sessionResponse.StatusCode);
+
+        using var response = await client.PostAsJsonAsync(
+            "/users/me/avatar/upload",
+            new
+            {
+                fileName,
+                contentType = "image/png",
+                size = 1024
+            });
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            response.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            FileErrorCodes.InvalidAvatarFileName,
+            document.RootElement.GetProperty("code").GetString());
     }
 
     [Fact]
@@ -168,8 +213,15 @@ public sealed class UserAvatarEndpointsTests
             });
 
         Assert.Equal(
-            HttpStatusCode.InternalServerError,
+            HttpStatusCode.Conflict,
             completeResponse.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await completeResponse.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectNotFound,
+            document.RootElement.GetProperty("code").GetString());
 
         var storedFile = await factory.GetStoredFileAsync(
             new StoredFileId(fileId));
@@ -237,8 +289,15 @@ public sealed class UserAvatarEndpointsTests
             });
 
         Assert.Equal(
-            HttpStatusCode.InternalServerError,
+            HttpStatusCode.Conflict,
             completeResponse.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await completeResponse.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectContentTypeMismatch,
+            document.RootElement.GetProperty("code").GetString());
 
         var storedFile = await factory.GetStoredFileAsync(
             new StoredFileId(fileId));
@@ -306,8 +365,15 @@ public sealed class UserAvatarEndpointsTests
             });
 
         Assert.Equal(
-            HttpStatusCode.InternalServerError,
+            HttpStatusCode.Conflict,
             completeResponse.StatusCode);
+
+        using var document = JsonDocument.Parse(
+            await completeResponse.Content.ReadAsStringAsync());
+
+        Assert.Equal(
+            FileErrorCodes.UploadedObjectSizeMismatch,
+            document.RootElement.GetProperty("code").GetString());
 
         var storedFile = await factory.GetStoredFileAsync(
             new StoredFileId(fileId));
